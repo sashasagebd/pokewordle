@@ -4,15 +4,13 @@ import { getPokemonList, getPokemon } from "../services/pokeApi";
 export default function PokemonContainer() {
     const [loading, setLoading] = useState(true);
     const [pokemon, setPokemon] = useState([])
-    const [onepokemon, setOnepokemon] = useState([]);
+    const [onepokemon, setOnePokemon] = useState([]);
 
     useEffect(() => {
         async function getData() {
             try {
-                const data1 = await getPokemon(1);
-                const data = await getPokemonList();
-                setPokemon(data.results)
-                setOnepokemon(data1)
+                const pokeData = await getPokemonList();
+                setPokemon(pokeData.results)
             } catch(err) {
                 console.error(err);
             } finally {
@@ -21,6 +19,18 @@ export default function PokemonContainer() {
         }
         getData();
     }, [])
+    
+    async function getOnePokemon(name) {
+        try {
+            const  onePokeData = await getPokemon(name);
+            setOnePokemon(onePokeData);
+        } catch(err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    }
+
 
     console.log(pokemon);
     console.log(onepokemon)

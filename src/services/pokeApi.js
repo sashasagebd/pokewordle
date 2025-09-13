@@ -6,8 +6,8 @@ export async function getPokemonList(limit = 20) {
     return res.json();
 }
 
-export async function getPokemon(num) {
-    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${num}`);
+export async function getPokemon(name) {
+    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
     if(!res.ok) {
         throw new Error("Error fetching specific pokemon");
     }
