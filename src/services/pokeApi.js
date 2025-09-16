@@ -13,3 +13,11 @@ export async function getPokemon(name) {
     }
     return res.json();
 }
+
+export async function getPokemonPic(num) {
+    const res = await fetch (`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${num}.png`)
+    if(!res.ok) {
+        throw new Error("Error fetching pokemon png")
+    }
+    return res;
+}

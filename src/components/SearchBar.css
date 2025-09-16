@@ -1,0 +1,4 @@
+.guesses-label {
+    display: flex;
+    gap: 1rem;
+}
