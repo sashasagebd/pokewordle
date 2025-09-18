@@ -7,6 +7,7 @@ export default function PokemonContainer() {
     const [loadingOne, setLoadingOne] = useState(true);
     const [pokemon, setPokemon] = useState([])
     const [onepokemon, setOnePokemon] = useState(null);
+    const  pokemonNames = [];
 
     useEffect(() => {
         async function getData() {
@@ -35,13 +36,19 @@ export default function PokemonContainer() {
         getOnePokemon();
     }, []);
 
-
+    function getPokemonNames(pokemon) {
+        pokemon.forEach((pokemon, index) => {
+            pokemonNames[index] = pokemon.name;
+        });
+    }
+    getPokemonNames(pokemon);
+    console.log(pokemonNames);
 
 
     console.log(pokemon);
     console.log(onepokemon)
 
     return (
-        <div>< SearchBar targetPokemon={onepokemon}/></div>
+        <div>< SearchBar targetPokemon={onepokemon} pokemonNames={pokemonNames}/></div>
     )
 }

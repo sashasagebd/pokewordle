@@ -6,10 +6,18 @@ import './SearchBar.css';
 export default function SearchBar(props) {
     const [ search, setSearch ] = useState('');
     const [ allGuesses, setAllGuesses ] = useState([]);
-
+    const [ dropdown, setDropdown ] = useState(false);
+    const [ filteredNames, setFilteredNames ] = useState([]);
 
     function handleInput(event) {
         setSearch(event.target.value);
+        if(event.target.value) {
+            autoComplete(event.target.value);
+            setDropdown(true);
+        }
+        else {
+            setDropdown(false);
+        }
     }
 
     async function handleSubmit(event) {
@@ -26,12 +34,26 @@ export default function SearchBar(props) {
         }
     }
 
+    function autoComplete(chars) {
+        if(!props.pokemonNames) {
+            return;
+        }
+        const newChars = chars.toLowerCase();
+        setFilteredNames(props.pokemonNames.filter(name => name.startsWith(newChars)));
+        console.log(filteredNames);
+    }
+
 
     return(
         <div className="game-container">
             <div className="search-bar">
                 <input type="text" value={search} onChange={handleInput}/>
                 <button type="submit" onClick={handleSubmit}>Submit</button>   
+            </div>
+            <div className="dropdown">
+                {dropdown && filteredNames.map(name => (
+                    <li key={name.id}>{name}</li>
+                ))}
             </div>
             <div className="guesses-label">
                 <p>Name</p>
