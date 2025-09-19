@@ -7,7 +7,7 @@ export default function PokemonContainer() {
     const [loadingOne, setLoadingOne] = useState(true);
     const [pokemon, setPokemon] = useState([])
     const [onepokemon, setOnePokemon] = useState(null);
-    const  pokemonNames = [];
+    const  pokemonInfo = [];
 
     useEffect(() => {
         async function getData() {
@@ -23,7 +23,7 @@ export default function PokemonContainer() {
         getData();
         
         async function getOnePokemon() {
-            const randomNum = (Math.ceil(Math.random() * 20));
+            const randomNum = (Math.ceil(Math.random() * 200));
             try {
                 const onePokeData = await getPokemon(randomNum);
                 setOnePokemon(onePokeData);
@@ -36,19 +36,22 @@ export default function PokemonContainer() {
         getOnePokemon();
     }, []);
 
-    function getPokemonNames(pokemon) {
+    function getPokemonInfo(pokemon) {
         pokemon.forEach((pokemon, index) => {
-            pokemonNames[index] = pokemon.name;
+            pokemonInfo[index] = {
+                name: pokemon.name, 
+                sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${index + 1}.png`
+            };
         });
     }
-    getPokemonNames(pokemon);
-    console.log(pokemonNames);
+    getPokemonInfo(pokemon);
+    console.log(pokemonInfo);
 
 
     console.log(pokemon);
     console.log(onepokemon)
 
     return (
-        <div>< SearchBar targetPokemon={onepokemon} pokemonNames={pokemonNames}/></div>
+        <div>< SearchBar targetPokemon={onepokemon} pokemonInfo={pokemonInfo}/></div>
     )
 }

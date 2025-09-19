@@ -5,3 +5,10 @@
     gap: 1rem;
     align-items: center;
 }
+
+.guess-row > div {
+    min-width: 100px;
+    text-align: center;
+    border: solid aliceblue;
+    border-radius: 4px;
+}

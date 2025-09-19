@@ -1,4 +1,24 @@
+.guesses {
+    display: flex;
+    flex-direction: column;
+}
+
 .guesses-label {
     display: flex;
+    justify-content: space-between;
     gap: 1rem;
+    outline-color: aliceblue;
+}
+
+.guesses-label > div {
+    width: 100px;
+    text-align: center;
+    border: solid aliceblue;
+    border-radius: 4px;
+}
+
+.dropdown {
+    background-color: #1a1a1a;
+    width: 70%;
+    position: absolute;
 }

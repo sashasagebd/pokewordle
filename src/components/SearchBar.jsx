@@ -7,7 +7,7 @@ export default function SearchBar(props) {
     const [ search, setSearch ] = useState('');
     const [ allGuesses, setAllGuesses ] = useState([]);
     const [ dropdown, setDropdown ] = useState(false);
-    const [ filteredNames, setFilteredNames ] = useState([]);
+    const [ filteredInfo, setFilteredInfo ] = useState([]);
 
     function handleInput(event) {
         setSearch(event.target.value);
@@ -20,11 +20,11 @@ export default function SearchBar(props) {
         }
     }
 
-    async function handleSubmit(event) {
-        event.preventDefault();
-        if(!search) return;
+    async function handleSubmit(event, name) {
+        if(event) event.preventDefault();
+        const pokeName = name || search;
         try {
-            const guessPokemon = await getPokemon(search.toLowerCase());
+            const guessPokemon = await getPokemon(pokeName.toLowerCase());
             setAllGuesses(prev => [...prev, guessPokemon]);
             if(guessPokemon.name === props.targetPokemon.name) {
                 console.log("Success");
@@ -32,39 +32,55 @@ export default function SearchBar(props) {
         } catch(err) {
             console.error("Invalid Pokemon:", err);
         }
+        setSearch('');
+        setDropdown(false);
     }
 
     function autoComplete(chars) {
-        if(!props.pokemonNames) {
+        if(!props.pokemonInfo) {
             return;
         }
         const newChars = chars.toLowerCase();
-        setFilteredNames(props.pokemonNames.filter(name => name.startsWith(newChars)));
-        console.log(filteredNames);
+        setFilteredInfo(props.pokemonInfo.filter(pokemon => pokemon.name.startsWith(newChars)));
+        console.log(filteredInfo);
     }
-
 
     return(
         <div className="game-container">
+
             <div className="search-bar">
-                <input type="text" value={search} onChange={handleInput}/>
+                <input 
+                    type="text" 
+                    value={search} 
+                    onChange={handleInput}
+                    onKeyDown={(e) => {
+                        if(e.key === "Enter") handleSubmit(e);
+                    }}
+                />
                 <button type="submit" onClick={handleSubmit}>Submit</button>   
+            
+                <div className="dropdown">
+                    {dropdown && filteredInfo.slice(0, 5).map(pokemon => (
+                        <li key={pokemon.id} onClick={() => handleSubmit(null, pokemon.name)}>
+                            {pokemon.name}
+                            <img src={pokemon.sprite} />
+                        </li>
+                    ))}
+                </div>
             </div>
-            <div className="dropdown">
-                {dropdown && filteredNames.map(name => (
-                    <li key={name.id}>{name}</li>
-                ))}
-            </div>
-            <div className="guesses-label">
-                <p>Name</p>
-                <p>Pic</p>
-                <p>Height</p>
-                <p>Weight</p>
-            </div>
-            <div className="guesses-list">
-                {allGuesses.map((guessPokemon, index) => (
-                    <Guesses guessPokemon={guessPokemon} key={index} targetPokemon={props.targetPokemon} guessPokemonPic={guessPokemon.sprites.front_default}/>
-                ))}
+            <div className="guesses">
+                <div className="guesses-label">
+                    <div>Name</div>
+                    <div>Pic</div>
+                    <div>Height</div>
+                    <div>Weight</div>
+                    <div>Type Matchup</div>
+                </div>
+                <div className="guesses-list">
+                    {allGuesses.map((guessPokemon, index) => (
+                        <Guesses guessPokemon={guessPokemon} key={index} targetPokemon={props.targetPokemon} guessPokemonPic={guessPokemon.sprites.front_default}/>
+                    ))}
+                </div>
             </div>
         </div>
     )
