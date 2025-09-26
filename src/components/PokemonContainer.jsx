@@ -52,6 +52,6 @@ export default function PokemonContainer() {
     console.log(onepokemon)
 
     return (
-        <div>< SearchBar targetPokemon={onepokemon} pokemonInfo={pokemonInfo}/></div>
+        < SearchBar targetPokemon={onepokemon} pokemonInfo={pokemonInfo}/>
     )
 }

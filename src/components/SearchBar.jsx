@@ -59,9 +59,9 @@ export default function SearchBar(props) {
                 />
                 <button type="submit" onClick={handleSubmit}>Submit</button>   
             
-                <div className="dropdown">
+                <div className="poke-dropdown">
                     {dropdown && filteredInfo.slice(0, 5).map(pokemon => (
-                        <li key={pokemon.id} onClick={() => handleSubmit(null, pokemon.name)}>
+                        <li className="dropdown-item" key={pokemon.id} onClick={() => handleSubmit(null, pokemon.name)}>
                             {pokemon.name}
                             <img src={pokemon.sprite} />
                         </li>

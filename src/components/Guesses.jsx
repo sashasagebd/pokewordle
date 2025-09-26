@@ -121,10 +121,10 @@ export default function Guesses( {guessPokemon, targetPokemon, guessPokemonPic} 
                 <img src={guessPokemonPic} />
             </div>
             <div className="height">
-                <img src={compareTwo(guessPokemon.height, targetPokemon.height)} />
+                <img className="arrow" src={compareTwo(guessPokemon.height, targetPokemon.height)} />
             </div>
             <div className="weight">
-                <img src={compareTwo(guessPokemon.weight, targetPokemon.weight)} />
+                <img className="arrow" src={compareTwo(guessPokemon.weight, targetPokemon.weight)} />
             </div>
             <div className="type">
                 {typeMatchup(guessPokemon.types[0].type.name, targetPokemon.types[0].type.name)}
