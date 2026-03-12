@@ -1,7 +1,7 @@
 import './Guesses.css';
 import upArrow from '../assets/up-arrow.svg';
-import downArrow from '../assets/down-arrow.svg'
-import { useEffect } from 'react';
+import downArrow from '../assets/down-arrow.svg';
+import equalSign from '../assets/equal.svg';
 
 export default function Guesses( {guessPokemon, targetPokemon, guessPokemonPic} ) {
 
@@ -85,7 +85,7 @@ export default function Guesses( {guessPokemon, targetPokemon, guessPokemonPic} 
         const intGuess = Number(guess);
         const intTarget = Number(target);
         if(intGuess === intTarget) {
-            return "Same";
+            return equalSign;
         }
         else if(intGuess > intTarget) {
             return downArrow;
@@ -129,6 +129,7 @@ export default function Guesses( {guessPokemon, targetPokemon, guessPokemonPic} 
             <div className="type">
                 {typeMatchup(guessPokemon.types[0].type.name, targetPokemon.types[0].type.name)}
             </div>
+
         </div>
     )
 }

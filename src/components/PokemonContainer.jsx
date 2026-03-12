@@ -7,7 +7,8 @@ export default function PokemonContainer() {
     const [loadingOne, setLoadingOne] = useState(true);
     const [pokemon, setPokemon] = useState([])
     const [onepokemon, setOnePokemon] = useState(null);
-    const  pokemonInfo = [];
+    
+    const pokemonInfo = [];
 
     useEffect(() => {
         async function getData() {

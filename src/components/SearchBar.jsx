@@ -8,6 +8,7 @@ export default function SearchBar(props) {
     const [ allGuesses, setAllGuesses ] = useState([]);
     const [ dropdown, setDropdown ] = useState(false);
     const [ filteredInfo, setFilteredInfo ] = useState([]);
+    const [ victory, setVictory ] = useState(false);
 
     function handleInput(event) {
         setSearch(event.target.value);
@@ -28,6 +29,7 @@ export default function SearchBar(props) {
             setAllGuesses(prev => [...prev, guessPokemon]);
             if(guessPokemon.name === props.targetPokemon.name) {
                 console.log("Success");
+                setVictory(true);
             }
         } catch(err) {
             console.error("Invalid Pokemon:", err);
@@ -60,12 +62,14 @@ export default function SearchBar(props) {
                 <button type="submit" onClick={handleSubmit}>Submit</button>   
             
                 <div className="poke-dropdown">
-                    {dropdown && filteredInfo.slice(0, 5).map(pokemon => (
-                        <li className="dropdown-item" key={pokemon.id} onClick={() => handleSubmit(null, pokemon.name)}>
-                            {pokemon.name}
-                            <img src={pokemon.sprite} />
-                        </li>
-                    ))}
+                    <ul style={{ listStyle: 'none', margin: 0, padding: 0 }} >
+                        {dropdown && filteredInfo.slice(0, 5).map(pokemon => (
+                            <li className="dropdown-item" key={pokemon.id} onClick={() => handleSubmit(null, pokemon.name)}>
+                                {pokemon.name}
+                                <img src={pokemon.sprite} />
+                            </li>
+                        ))}
+                    </ul>
                 </div>
             </div>
             <div className="guesses">
@@ -81,6 +85,9 @@ export default function SearchBar(props) {
                         <Guesses guessPokemon={guessPokemon} key={index} targetPokemon={props.targetPokemon} guessPokemonPic={guessPokemon.sprites.front_default}/>
                     ))}
                 </div>
+                {victory && (
+                    <h3>Correct! Please reload to play again</h3>
+                )}
             </div>
         </div>
     )

@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import './HomePage.css';
 
 export default function HomePage() {
     const [ dropdown, setDropdown ] = useState(false);
     const [ selected, setSelected ] = useState([])
 
-    const generationNums = [[0, 151], [151, 251], [251, 386], [386, 493], [493, 649], [649, 721], [721, 809], [809, 905], [905, 1025]]
+    const generationNums = [[0, 151], [151, 251], [251, 386], [386, 493], [493, 649], [649, 721], [721, 809], [809, 905], [905, 1025]];
     const generations = ["Gen 1", "Gen 2", "Gen 3", "Gen 4", "Gen 5", "Gen 6", "Gen 7", "Gen 8", "Gen 9"];
 
     function handleGeneration(generation) {
@@ -15,11 +16,10 @@ export default function HomePage() {
             } else {
             return [...prev, generation]; // add
             }
-        });s     
+        });   
     }
 
     return(
-
         <div className="home-container">
             <button onClick={() => setDropdown(!dropdown)}>Generation</button>
             <div id="dropdown">

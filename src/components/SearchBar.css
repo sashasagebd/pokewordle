@@ -29,15 +29,20 @@
 
 .poke-dropdown {
     background-color: #1a1a1a;
-    width: 70%;
     position: absolute;
+    padding-bottom: 1rem;
 }
 
 .dropdown-item {
     cursor: pointer;
+    padding-left: 1rem;
 }
 
 .search-bar {
     margin: 1rem;
     
+}
+
+ul {
+    list-style-type: none;
 }
