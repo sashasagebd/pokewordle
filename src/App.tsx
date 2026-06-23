@@ -9,7 +9,9 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/pokewordle" element={<PokemonContainer />} />
+        <Route path="/pokewordle" element={<PokemonContainer gamemode="pokewordle"/>} />
+        <Route path="/higherlower" element={<PokemonContainer gamemode="higherlower"/>} />
+        <Route path="/guesspokemon" element={<PokemonContainer gamemode="guesspokemon" />} />
       </Routes>
     </BrowserRouter>
   )

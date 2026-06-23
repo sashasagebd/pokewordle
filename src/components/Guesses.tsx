@@ -1,11 +1,12 @@
 import './Guesses.css';
+import type { GuessProps } from '../types';
 import upArrow from '../assets/up-arrow.svg';
 import downArrow from '../assets/down-arrow.svg';
 import equalSign from '../assets/equal.svg';
 
-export default function Guesses( {guessPokemon, targetPokemon, guessPokemonPic} ) {
+export default function Guesses( {guessPokemon, targetPokemon, guessPokemonPic}: GuessProps ) {
 
-    const typeMatchups = {
+    const typeMatchups: Record<string, { effective: string[], notEffective: string[] }> = {
         normal: {
             effective: [],
             notEffective: ["rock", "ghost", "steel"]
@@ -81,7 +82,7 @@ export default function Guesses( {guessPokemon, targetPokemon, guessPokemonPic} 
 
     }
     
-    function compareTwo(guess, target) {
+    function compareTwo(guess: string, target: string) {
         const intGuess = Number(guess);
         const intTarget = Number(target);
         if(intGuess === intTarget) {
@@ -95,7 +96,7 @@ export default function Guesses( {guessPokemon, targetPokemon, guessPokemonPic} 
         }
     }
 
-    function typeMatchup(guess, target) {
+    function typeMatchup(guess: string, target: string) {
         if(guess === target) {
            return "Same";
         }
@@ -115,7 +116,7 @@ export default function Guesses( {guessPokemon, targetPokemon, guessPokemonPic} 
     return(
         <div className="guess-row">
             <div className="poke-name">
-                <p>{guessPokemon.name}</p>
+                <p>{guessPokemon?.name}</p>
             </div>
             <div className="poke-pic">
                 <img src={guessPokemonPic} />
