@@ -1,6 +1,6 @@
 import type { Pokemon } from '../types'
 
-export async function getPokemonList(limit = 200) {
+export async function getPokemonList(limit = 1025) {
     const res = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=${limit}`);
     if(!res.ok) {
         throw new Error("Error fetching pokemon");
@@ -25,6 +25,6 @@ export async function getPokemonPic(num: number) {
 }
 
 export async function getRandomPokemon(): Promise<Pokemon> {
-    const randomNum = Math.ceil(Math.random() * 200);
+    const randomNum = Math.ceil(Math.random() * 1025);
     return getPokemon(String(randomNum));
 }
