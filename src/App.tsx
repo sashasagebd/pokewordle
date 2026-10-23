@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import PokemonContainer from './components/PokemonContainer';
 import HomePage from './components/HomePage';
-import './App.css'
 
 function App() {
 

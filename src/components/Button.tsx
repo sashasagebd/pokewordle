@@ -1,13 +1,19 @@
 import type { ButtonProps, ButtonVariant } from '../types'
 
 const variants: Record<ButtonVariant, string> = { //Record is key, value
-    red: "bg-red-600 hover:bg-red-700",
-    white: "bg-white hover:bg-grey-200",
+    primary: "bg-poke hover:bg-poke-dark text-white shadow-lg shadow-poke/20",
+    secondary: "bg-surface-2 hover:bg-line text-white border border-line",
 }
 
-export default function Button({ children, onClick, variant = "red" }: ButtonProps) {
+export default function Button({ children, onClick, variant = "primary", className = "", disabled }: ButtonProps) {
 
     return(
-        <button onClick={onClick} className={`${variants[variant]} rounded-lg px-4 py-2 cursor-pointer transition-colors`}>{children}</button>
+        <button
+            onClick={onClick}
+            disabled={disabled}
+            className={`${variants[variant]} font-display font-semibold rounded-xl px-5 py-2.5 cursor-pointer transition active:scale-95 disabled:opacity-50 disabled:pointer-events-none ${className}`}
+        >
+            {children}
+        </button>
     )
 }

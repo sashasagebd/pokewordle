@@ -1,5 +1,41 @@
 @import "tailwindcss";
 
-body, #root {
-    @apply bg-[#242424] text-white min-h-screen font-sans antialiased;
+@theme {
+    --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Fredoka", ui-rounded, system-ui, sans-serif;
+
+    --color-ink: #0e1120;
+    --color-surface: #171b2e;
+    --color-surface-2: #20253c;
+    --color-line: #2c3250;
+    --color-muted: #9aa1c0;
+    --color-poke: #e3350d;
+    --color-poke-dark: #b92a0a;
+    --color-gold: #ffcb05;
+    --color-good: #3ec97a;
+    --color-warn: #f2a93b;
+    --color-bad: #ef4f5a;
+
+    --animate-pop: pop 180ms ease-out;
+}
+
+@keyframes pop {
+    from { opacity: 0; transform: scale(0.94); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+body {
+    @apply bg-ink text-white min-h-screen font-sans antialiased;
+    background-image:
+        radial-gradient(60rem 40rem at 50% -10%, rgb(227 53 13 / 0.14), transparent 70%),
+        radial-gradient(40rem 30rem at 100% 100%, rgb(255 203 5 / 0.05), transparent 70%);
+    background-attachment: fixed;
+}
+
+h1, h2, h3 {
+    @apply font-display;
+}
+
+.pixelated {
+    image-rendering: pixelated;
 }

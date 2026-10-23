@@ -4,8 +4,8 @@ export interface Pokemon {
     id: number;
     name: string;
     sprites: { front_default: string };
-    height: string;
-    weight: string;
+    height: number;
+    weight: number;
     types: { type: { name: string } }[];
 }
 
@@ -17,12 +17,12 @@ export interface PokemonInfo {
 export type GuessProps = {
     guessPokemon: Pokemon;
     targetPokemon: Pokemon;
-    guessPokemonPic: string;
 };
 
 export type SearchProps = {
     targetPokemon: Pokemon | null;
     pokemonInfo: PokemonInfo[];
+    onNewGame: () => void;
 }
 
 export type HLProps = {
@@ -33,12 +33,13 @@ export interface ButtonProps {
     children: ReactNode;
     onClick?: () => void;
     variant?: ButtonVariant;
+    className?: string;
+    disabled?: boolean;
 }
 
 export interface CardProps {
-    children: ReactNode;
-    onClick?: () => void;
-    sprite?: string;
+    children?: ReactNode;
+    className?: string;
 }
 
-export type ButtonVariant = "red" | "white";
+export type ButtonVariant = "primary" | "secondary";

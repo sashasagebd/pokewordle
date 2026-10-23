@@ -1,16 +1,11 @@
 import type { CardProps } from "../types"
 
+// Base surface used across every page so panels look the same everywhere
+export default function Card({ children, className = "" }: CardProps) {
 
-export default function Card({ children, onClick, sprite }: CardProps) {
-     
     return(
-        <div className="flex justify-center items-center w-full">
-            <div className="flex flex-col justify-center items-center w-[80%] h-[80%] rounded-xl border bg-red-600">
-                <img className="w-[50%] h-[50%] object-contain" src={sprite} />
-                
-                    {children}
-            </div>
+        <div className={`rounded-2xl border border-line bg-surface/80 backdrop-blur shadow-xl shadow-black/30 ${className}`}>
+            {children}
         </div>
     )
 }
-

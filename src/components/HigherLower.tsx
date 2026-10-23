@@ -1,37 +1,88 @@
 import type { HLProps, Pokemon } from '../types'
-import { Link } from 'react-router-dom'
 import { getRandomPokemon } from '../services/pokeApi'
+import { useState, useEffect, useRef, type ReactNode } from 'react'
+import GameLayout from './GameLayout'
 import Card from './Card'
-import { useState, useEffect } from 'react'
-import upArrow from '../assets/up-arrow.svg';
-import downArrow from '../assets/down-arrow.svg';
+import { ArrowUp, ArrowDown } from './Icons'
 import pokeBall from '../assets/pokeball.svg'
+
+type Category = "height" | "weight";
+
+const categories: { key: Category, label: string, unit: string }[] = [
+    { key: "height", label: "Height", unit: "m" },
+    { key: "weight", label: "Weight", unit: "kg" },
+]
+
+const QUEUE_SIZE = 3;
+
+// Resolves once the sprite is downloaded and decoded, so swapping it in is instant
+function preloadImage(src: string) {
+    return new Promise<void>(resolve => {
+        const img = new Image();
+        img.onload = img.onerror = () => resolve();
+        img.src = src;
+    });
+}
+
+async function fetchReadyPokemon() {
+    const pokemon = await getRandomPokemon();
+    await preloadImage(pokemon.sprites.front_default);
+    return pokemon;
+}
+
+function PokemonCard({ pokemon, value, hidden, children }: { pokemon: Pokemon | null, value: string, hidden?: boolean, children?: ReactNode }) {
+    return (
+        <Card className="flex-1 w-full p-4 sm:p-6 flex flex-col items-center text-center">
+            <div className="w-28 h-28 sm:w-52 sm:h-52 rounded-full bg-surface-2 flex items-center justify-center">
+                {pokemon ? (
+                    <img key={pokemon.id} src={pokemon.sprites.front_default} alt={pokemon.name} className="w-full h-full pixelated animate-pop" draggable={false} />
+                ) : (
+                    <img src={pokeBall} alt="Loading" className="w-16 h-16 animate-spin opacity-60" />
+                )}
+            </div>
+            <h2 className="mt-2 sm:mt-4 text-xl sm:text-2xl font-semibold capitalize">{pokemon?.name ?? "…"}</h2>
+            <p className={`mt-1 font-display text-3xl font-bold ${hidden ? "text-muted" : "text-gold"}`}>{value}</p>
+            {children}
+        </Card>
+    )
+}
 
 export default function HigherLower({ starterPokemon } : HLProps) {
     const [ currentPokemon, setCurrentPokemon ] = useState<Pokemon | null>(starterPokemon);
     const [ nextPokemon, setNextPokemon ] = useState<Pokemon | null>(null);
     const [ category, setCategory ] = useState<number>(0);
-    const [ dropdown, setDropdown ] = useState<boolean>(false);
     const [ correctCounter, setCorrectCounter ] = useState<number>(0);
+    const [ best, setBest ] = useState<number>(0);
+    const [ result, setResult ] = useState<{ correct: boolean, text: string } | null>(null);
 
-    const categories: string[] = [
-        "height",
-        "weight",
-        
-    ]
+    // Pokemon fetched ahead of time with their images already loaded
+    const queue = useRef<Pokemon[]>([]);
+    const filling = useRef<boolean>(false);
+
+    async function fillQueue() {
+        if(filling.current) return;
+        filling.current = true;
+        try {
+            while(queue.current.length < QUEUE_SIZE) {
+                queue.current.push(await fetchReadyPokemon());
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            filling.current = false;
+        }
+    }
+
+    async function takeNext(excludeId?: number): Promise<Pokemon> {
+        const index = queue.current.findIndex(p => p.id !== excludeId);
+        const ready = index >= 0 ? queue.current.splice(index, 1)[0] : await fetchReadyPokemon();
+        fillQueue();
+        return ready;
+    }
 
     useEffect(() => {
-        async function getUniqueRandom() {
-            let newPokemon: Pokemon;
-            do {
-                newPokemon = await getRandomPokemon();
-            } 
-            while(newPokemon.id === currentPokemon?.id);
-            
-            setNextPokemon(newPokemon);
-        }
-        getUniqueRandom();
-    }, [currentPokemon]);
+        takeNext(starterPokemon?.id).then(p => setNextPokemon(prev => prev ?? p));
+    }, []);
 
     useEffect(() => {
         if(starterPokemon && !currentPokemon) {
@@ -39,72 +90,104 @@ export default function HigherLower({ starterPokemon } : HLProps) {
         }
     }, [starterPokemon]);
 
-    function handleGuess(guess: Boolean) {
-        if(currentPokemon && nextPokemon) {
-            if(nextPokemon.height >= currentPokemon.height && guess) { //if new is bigger
-                setCurrentPokemon(nextPokemon);
-                setCorrectCounter(correctCounter + 1);
-            }
-            else if(nextPokemon.height <= currentPokemon.height && !guess) {
-                setCurrentPokemon(nextPokemon);
-                setCorrectCounter(correctCounter + 1);
-            }
-            else {
-                setCorrectCounter(0);
-            
-            }
+    const { key, unit } = categories[category];
+    const format = (p: Pokemon | null) => p ? `${p[key] / 10} ${unit}` : "";
+
+    async function handleGuess(higher: boolean) {
+        if(!currentPokemon || !nextPokemon) return;
+
+        const correct = higher
+            ? nextPokemon[key] >= currentPokemon[key]
+            : nextPokemon[key] <= currentPokemon[key];
+
+        if(correct) {
+            const streak = correctCounter + 1;
+            setCorrectCounter(streak);
+            setBest(b => Math.max(b, streak));
+        }
+        else {
+            setCorrectCounter(0);
+        }
+        setResult({ correct, text: `${nextPokemon.name} is ${format(nextPokemon)}` });
+
+        // Advance straight away with a preloaded Pokemon instead of waiting on a fetch
+        setCurrentPokemon(nextPokemon);
+        const upcoming = queue.current.find(p => p.id !== nextPokemon.id);
+        if(upcoming) {
+            queue.current = queue.current.filter(p => p !== upcoming);
+            setNextPokemon(upcoming);
+            fillQueue();
+        }
+        else {
+            setNextPokemon(null);
+            setNextPokemon(await takeNext(nextPokemon.id));
         }
     }
 
     return(
-        <div className="w-screen h-screen">
-            <Link to="/" className="w-10 h-10 bg-white hover:bg-gray-100 cursor-pointer text-black rounded-full absolute top-5 left-5 flex items-center justify-center">X</Link>
-            <div className="fixed top-1/4 left-1/2 -translate-x-1/2">
-                <div className="relative">
-                    <img src={pokeBall} className="w-30 h-30"/>
-                        <span className="absolute inset-0 flex items-center justify-center text-black font-bold">
-                            {correctCounter}
-                        </span>
+        <GameLayout title="Higher or Lower">
+            <div className="w-full max-w-4xl flex flex-col items-center gap-4 sm:gap-6">
+                <div className="inline-flex rounded-full border border-line bg-surface p-1">
+                    {categories.map((c, index) => (
+                        <button
+                            key={c.key}
+                            onClick={() => setCategory(index)}
+                            className={`cursor-pointer rounded-full px-5 py-1.5 font-display font-semibold transition ${index === category ? "bg-poke text-white" : "text-muted hover:text-white"}`}
+                        >
+                            {c.label}
+                        </button>
+                    ))}
                 </div>
-            </div>
-            <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                <div className="relative">
-                    <div
-                        className="rounded-full border bg-red-600 hover:bg-red-700 w-32 h-16 flex justify-center items-center cursor-pointer"
-                        onClick={() => setDropdown(!dropdown)}
-                    >
-                        <h3 className="first-letter:uppercase">{categories[category]}</h3>
+
+                <div className="flex items-center gap-4">
+                    <div className="relative w-16 h-16">
+                        <img src={pokeBall} alt="" className="w-full h-full" />
+                        <span className="absolute inset-0 flex items-center justify-center">
+                            <span className="rounded-full bg-white text-ink font-display font-bold text-sm w-7 h-7 flex items-center justify-center shadow">
+                                {correctCounter}
+                            </span>
+                        </span>
+                    </div>
+                    <div className="text-sm">
+                        <p className="font-semibold">Streak</p>
+                        <p className="text-muted">Best <span className="text-gold font-semibold">{best}</span></p>
+                    </div>
+                </div>
+
+                <p className={`h-6 text-sm font-semibold capitalize ${result?.correct ? "text-good" : "text-bad"}`}>
+                    {result && `${result.correct ? "Correct!" : "Nope!"} ${result.text}`}
+                </p>
+
+                <div className="w-full flex flex-col md:flex-row items-stretch gap-4">
+                    <PokemonCard pokemon={currentPokemon} value={format(currentPokemon)} />
+
+                    <div className="self-center shrink-0 -my-6 md:my-0 z-10 w-12 h-12 rounded-full bg-gold text-ink font-display font-bold flex items-center justify-center shadow-lg">
+                        VS
                     </div>
 
-                    {dropdown && (
-                        <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 w-32">
-                            <ul>
-                                {categories.map((category, index) => (
-                                    <li
-                                        key={category}
-                                        className="first-letter:uppercase rounded-full border bg-red-600 p-2 hover:bg-red-700 cursor-pointer text-center mb-1"
-                                        onClick={() => {
-                                            setCategory(index);
-                                            setDropdown(false);
-                                        }}
-                                    >
-                                        {category}
-                                    </li>
-                                ))}
-                            </ul>
+                    <PokemonCard pokemon={nextPokemon} value="?" hidden>
+                        <p className="text-sm text-muted mt-1">
+                            {categories[category].label.toLowerCase()} compared to <span className="capitalize">{currentPokemon?.name ?? "…"}</span>
+                        </p>
+                        <div className="mt-4 grid grid-cols-2 gap-3 w-full max-w-xs">
+                            <button
+                                onClick={() => handleGuess(true)}
+                                disabled={!nextPokemon || !currentPokemon}
+                                className="cursor-pointer flex items-center justify-center gap-2 rounded-xl bg-good/15 border border-good/50 text-good hover:bg-good/25 py-3 font-display font-semibold transition active:scale-95 disabled:opacity-50"
+                            >
+                                <ArrowUp className="w-5 h-5" /> Higher
+                            </button>
+                            <button
+                                onClick={() => handleGuess(false)}
+                                disabled={!nextPokemon || !currentPokemon}
+                                className="cursor-pointer flex items-center justify-center gap-2 rounded-xl bg-bad/15 border border-bad/50 text-bad hover:bg-bad/25 py-3 font-display font-semibold transition active:scale-95 disabled:opacity-50"
+                            >
+                                <ArrowDown className="w-5 h-5" /> Lower
+                            </button>
                         </div>
-                    )}
+                    </PokemonCard>
                 </div>
             </div>
-            <div className="grid grid-cols-2 h-screen">
-                <Card sprite={currentPokemon?.sprites.front_default}><></></Card>
-                <Card sprite={nextPokemon?.sprites.front_default}>
-                    <div className="flex absolute transform translate-y-40">
-                        <img src={upArrow} className="w-30 cursor-pointer" onClick={() => handleGuess(true)}/>
-                        <img src={downArrow} className="w-30 cursor-pointer" onClick={() => handleGuess(false)}/>
-                    </div>
-                </Card>
-            </div>
-        </div>
+        </GameLayout>
     )
 }
