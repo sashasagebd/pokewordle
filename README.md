@@ -2,6 +2,8 @@
 
 Three browser games for testing how well you know your Pokémon, built with React and the free [PokéAPI](https://pokeapi.co/).
 
+**Play it at [pokewordle.sashasagebd.workers.dev](https://pokewordle.sashasagebd.workers.dev/)**
+
 ## Game modes
 
 ### PokéWordle
@@ -38,6 +40,10 @@ Then open the address Vite prints (usually http://localhost:5173).
 | `npm run preview` | Serves the production build locally |
 | `npm run lint` | Checks the code with ESLint |
 
+## Deployment
+
+The site is hosted on [Cloudflare Workers](https://developers.cloudflare.com/workers/static-assets/) as static assets. Every push to `main` builds it with `npm run build` and deploys `dist/` with `npx wrangler deploy`. The settings are in `wrangler.jsonc`, which also sends unknown paths to `index.html` so the game routes work when you refresh or open a link directly.
+
 ## Tech stack
 
 - [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
@@ -45,6 +51,7 @@ Then open the address Vite prints (usually http://localhost:5173).
 - [Tailwind CSS 4](https://tailwindcss.com/) for styling
 - [React Router](https://reactrouter.com/) for the game routes
 - [PokéAPI](https://pokeapi.co/) for Pokémon data and sprites
+- [Cloudflare Workers](https://workers.cloudflare.com/) for hosting
 
 ## Project structure
 
