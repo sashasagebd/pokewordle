@@ -1,10 +1,14 @@
 import type { HLProps, Pokemon } from '../types'
-import { getRandomPokemon } from '../services/pokeApi'
-import { useState, useEffect, useRef, type ReactNode } from 'react'
+import { useState, useEffect, type ReactNode } from 'react'
 import GameLayout from './GameLayout'
 import Card from './Card'
+import StreakBadge from './StreakBadge'
+import WrongFlash from './WrongFlash'
 import { ArrowUp, ArrowDown } from './Icons'
 import pokeBall from '../assets/pokeball.svg'
+import { useGenerations } from '../useGenerations'
+import { usePokemonQueue } from '../usePokemonQueue'
+import { useBestScore } from '../useBestScore'
 
 type Category = "height" | "weight";
 
@@ -12,23 +16,6 @@ const categories: { key: Category, label: string, unit: string }[] = [
     { key: "height", label: "Height", unit: "m" },
     { key: "weight", label: "Weight", unit: "kg" },
 ]
-
-const QUEUE_SIZE = 3;
-
-// Resolves once the sprite is downloaded and decoded, so swapping it in is instant
-function preloadImage(src: string) {
-    return new Promise<void>(resolve => {
-        const img = new Image();
-        img.onload = img.onerror = () => resolve();
-        img.src = src;
-    });
-}
-
-async function fetchReadyPokemon() {
-    const pokemon = await getRandomPokemon();
-    await preloadImage(pokemon.sprites.front_default);
-    return pokemon;
-}
 
 function PokemonCard({ pokemon, value, hidden, children }: { pokemon: Pokemon | null, value: string, hidden?: boolean, children?: ReactNode }) {
     return (
@@ -52,33 +39,12 @@ export default function HigherLower({ starterPokemon } : HLProps) {
     const [ nextPokemon, setNextPokemon ] = useState<Pokemon | null>(null);
     const [ category, setCategory ] = useState<number>(0);
     const [ correctCounter, setCorrectCounter ] = useState<number>(0);
-    const [ best, setBest ] = useState<number>(0);
+    const { best, recordStreak } = useBestScore("higherlower");
     const [ result, setResult ] = useState<{ correct: boolean, text: string } | null>(null);
-
-    // Pokemon fetched ahead of time with their images already loaded
-    const queue = useRef<Pokemon[]>([]);
-    const filling = useRef<boolean>(false);
-
-    async function fillQueue() {
-        if(filling.current) return;
-        filling.current = true;
-        try {
-            while(queue.current.length < QUEUE_SIZE) {
-                queue.current.push(await fetchReadyPokemon());
-            }
-        } catch (err) {
-            console.error(err);
-        } finally {
-            filling.current = false;
-        }
-    }
-
-    async function takeNext(excludeId?: number): Promise<Pokemon> {
-        const index = queue.current.findIndex(p => p.id !== excludeId);
-        const ready = index >= 0 ? queue.current.splice(index, 1)[0] : await fetchReadyPokemon();
-        fillQueue();
-        return ready;
-    }
+    // Bumped on each wrong guess so the flash overlay remounts and replays
+    const [ wrongFlash, setWrongFlash ] = useState<number>(0);
+    const { selected } = useGenerations();
+    const { takeReady, takeNext } = usePokemonQueue(selected);
 
     useEffect(() => {
         takeNext(starterPokemon?.id).then(p => setNextPokemon(prev => prev ?? p));
@@ -103,20 +69,19 @@ export default function HigherLower({ starterPokemon } : HLProps) {
         if(correct) {
             const streak = correctCounter + 1;
             setCorrectCounter(streak);
-            setBest(b => Math.max(b, streak));
+            recordStreak(streak);
         }
         else {
             setCorrectCounter(0);
+            setWrongFlash(n => n + 1);
         }
         setResult({ correct, text: `${nextPokemon.name} is ${format(nextPokemon)}` });
 
         // Advance straight away with a preloaded Pokemon instead of waiting on a fetch
         setCurrentPokemon(nextPokemon);
-        const upcoming = queue.current.find(p => p.id !== nextPokemon.id);
+        const upcoming = takeReady(nextPokemon.id);
         if(upcoming) {
-            queue.current = queue.current.filter(p => p !== upcoming);
             setNextPokemon(upcoming);
-            fillQueue();
         }
         else {
             setNextPokemon(null);
@@ -126,6 +91,7 @@ export default function HigherLower({ starterPokemon } : HLProps) {
 
     return(
         <GameLayout title="Higher or Lower">
+            <WrongFlash count={wrongFlash} />
             <div className="w-full max-w-4xl flex flex-col items-center gap-4 sm:gap-6">
                 <div className="inline-flex rounded-full border border-line bg-surface p-1">
                     {categories.map((c, index) => (
@@ -139,20 +105,7 @@ export default function HigherLower({ starterPokemon } : HLProps) {
                     ))}
                 </div>
 
-                <div className="flex items-center gap-4">
-                    <div className="relative w-16 h-16">
-                        <img src={pokeBall} alt="" className="w-full h-full" />
-                        <span className="absolute inset-0 flex items-center justify-center">
-                            <span className="rounded-full bg-white text-ink font-display font-bold text-sm w-7 h-7 flex items-center justify-center shadow">
-                                {correctCounter}
-                            </span>
-                        </span>
-                    </div>
-                    <div className="text-sm">
-                        <p className="font-semibold">Streak</p>
-                        <p className="text-muted">Best <span className="text-gold font-semibold">{best}</span></p>
-                    </div>
-                </div>
+                <StreakBadge streak={correctCounter} best={best} />
 
                 <p className={`h-6 text-sm font-semibold capitalize ${result?.correct ? "text-good" : "text-bad"}`}>
                     {result && `${result.correct ? "Correct!" : "Nope!"} ${result.text}`}

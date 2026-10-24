@@ -1,4 +1,5 @@
 import type { Pokemon } from '../types'
+import { randomIdFromGens } from '../generations'
 
 export async function getPokemonList(limit = 1025) {
     const res = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=${limit}`);
@@ -24,7 +25,6 @@ export async function getPokemonPic(num: number) {
     return res;
 }
 
-export async function getRandomPokemon(): Promise<Pokemon> {
-    const randomNum = Math.ceil(Math.random() * 1025);
-    return getPokemon(String(randomNum));
+export async function getRandomPokemon(gens: number[]): Promise<Pokemon> {
+    return getPokemon(String(randomIdFromGens(gens)));
 }

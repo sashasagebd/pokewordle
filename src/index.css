@@ -17,6 +17,12 @@
     --color-bad: #ef4f5a;
 
     --animate-pop: pop 180ms ease-out;
+    --animate-flash: flash 500ms ease-out forwards;
+}
+
+@keyframes flash {
+    from { opacity: 1; }
+    to { opacity: 0; }
 }
 
 @keyframes pop {

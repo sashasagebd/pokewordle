@@ -1,7 +1,8 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Card from './Card'
 import pokeBall from '../assets/pokeball.svg'
+import { GENERATIONS } from '../generations'
+import { useGenerations } from '../useGenerations'
 
 const spriteUrl = (id: number) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
 
@@ -12,20 +13,7 @@ const modes = [
 ];
 
 export default function HomePage() {
-    const [ selected, setSelected ] = useState<string[]>([])
-
-    const generationNums = [[0, 151], [151, 251], [251, 386], [386, 493], [493, 649], [649, 721], [721, 809], [809, 905], [905, 1025]];
-    const generations = ["Gen 1", "Gen 2", "Gen 3", "Gen 4", "Gen 5", "Gen 6", "Gen 7", "Gen 8", "Gen 9"];
-
-    function handleGeneration(generation: string) {
-        setSelected(prev => {
-            if (prev.includes(generation)) {
-            return prev.filter(g => g !== generation); // toggle off
-            } else {
-            return [...prev, generation]; // add
-            }
-        });
-    }
+    const { selected, toggle } = useGenerations();
 
     return(
         <div className="min-h-screen flex flex-col items-center px-4 py-12 sm:py-16">
@@ -60,16 +48,19 @@ export default function HomePage() {
                 <h2 className="font-semibold text-lg">Generations</h2>
                 <p className="text-sm text-muted mb-3">Pick which generations to include.</p>
                 <div className="flex flex-wrap gap-2">
-                    {generations.map((generation, index) => (
+                    {GENERATIONS.map((generation, index) => (
                         <button
-                            key={index}
-                            onClick={() => handleGeneration(generation)}
-                            className={`cursor-pointer rounded-full px-4 py-1.5 text-sm font-semibold border transition ${selected.includes(generation) ? "bg-poke border-poke text-white" : "bg-surface-2 border-line text-muted hover:text-white hover:border-muted"}`}
+                            key={generation.label}
+                            onClick={() => toggle(index)}
+                            className={`cursor-pointer rounded-full px-4 py-1.5 text-sm font-semibold border transition ${selected.includes(index) ? "bg-poke border-poke text-white" : "bg-surface-2 border-line text-muted hover:text-white hover:border-muted"}`}
                         >
-                            {generation}
+                            {generation.label}
                         </button>
                     ))}
                 </div>
+                {selected.length === 0 && (
+                    <p className="text-sm text-muted mt-3">None selected, so all generations will be used.</p>
+                )}
             </Card>
         </div>
     )

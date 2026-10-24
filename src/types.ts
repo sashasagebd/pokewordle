@@ -29,12 +29,27 @@ export type HLProps = {
     starterPokemon: Pokemon | null;
 }
 
+export type GuessPokemonProps = {
+    starterPokemon: Pokemon | null;
+    pokemonInfo: PokemonInfo[];
+}
+
+export type PokemonSearchProps = {
+    pokemonInfo: PokemonInfo[];
+    onSubmit: (name: string) => void;
+    onType?: () => void;
+    placeholder?: string;
+    disabled?: boolean;
+    showSprites?: boolean;
+}
+
 export interface ButtonProps {
     children: ReactNode;
     onClick?: () => void;
     variant?: ButtonVariant;
     className?: string;
     disabled?: boolean;
+    autoFocus?: boolean;
 }
 
 export interface CardProps {
