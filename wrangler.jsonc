@@ -1,0 +1,9 @@
+{
+  "name": "pokewordle",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    // Send unknown paths like /higherlower to index.html so React Router can handle them
+    "not_found_handling": "single-page-application"
+  }
+}
