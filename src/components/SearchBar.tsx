@@ -1,39 +1,49 @@
-import { useState } from 'react';
-import type { SearchProps, Pokemon } from '../types';
-import { getPokemon, spriteUrl } from '../services/pokeApi';
+import { useRef, useState } from 'react';
+import type { SearchProps } from '../types';
+import { ApiError, guess, spriteUrl } from '../services/pokeApi';
+import { useGame } from '../useGame';
 import Guesses, { guessGrid } from './Guesses';
 import GameLayout from './GameLayout';
 import Card from './Card';
 import Button from './Button';
 import PokemonSearch from './PokemonSearch';
 
-export default function SearchBar({ targetPokemon, pokemonInfo, onNewGame }: SearchProps) {
-    const [ allGuesses, setAllGuesses ] = useState<Pokemon[]>([]);
-    const [ victory, setVictory ] = useState<boolean>(false);
+export default function SearchBar({ pokemonInfo }: SearchProps) {
+    const { game, setGame, newGame, loadError } = useGame("wordle");
     const [ error, setError ] = useState<string>('');
+    // Guesses wait for the one before (not by disabling the input, which would lose focus)
+    const busy = useRef<boolean>(false);
+
+    const victory = game?.status === "won";
+    // Newest first
+    const guesses = [...(game?.guesses ?? [])].reverse();
 
     async function handleSubmit(pokeName: string) {
-        if(allGuesses.some(p => p.name === pokeName)) {
-            setError(`You already guessed ${pokeName}.`);
-            return;
-        }
+        if(!game || game.status !== "active" || busy.current) return;
+        busy.current = true;
         try {
-            const guessPokemon = await getPokemon(pokeName);
-            setAllGuesses(prev => [guessPokemon, ...prev]);
-            if(guessPokemon.name === targetPokemon?.name) {
-                setVictory(true);
-            }
+            const res = await guess(game.id, pokeName);
+            setGame(res.game);
         } catch(err) {
-            console.error("Invalid Pokemon:", err);
-            setError(`No Pokémon called "${pokeName}".`);
+            if(err instanceof ApiError && err.status === 400) {
+                setError(err.message);
+            } else {
+                console.error(err);
+                setError("Couldn't send that guess. Try again.");
+            }
+        } finally {
+            busy.current = false;
         }
     }
 
-    function playAgain() {
-        setAllGuesses([]);
-        setVictory(false);
+    async function playAgain() {
         setError('');
-        onNewGame();
+        try {
+            setGame(await newGame());
+        } catch(err) {
+            console.error(err);
+            setError("Couldn't start a new game. Try again.");
+        }
     }
 
     return(
@@ -45,17 +55,17 @@ export default function SearchBar({ targetPokemon, pokemonInfo, onNewGame }: Sea
                         onSubmit={handleSubmit}
                         onType={() => setError('')}
                         placeholder={victory ? "You got it!" : undefined}
-                        disabled={victory || !targetPokemon}
+                        disabled={victory || !game}
                     />
-                    {error && <p className="mt-2 text-sm text-bad">{error}</p>}
+                    {(error || loadError) && <p className="mt-2 text-sm text-bad">{error || loadError}</p>}
                 </div>
 
-                {victory && targetPokemon && (
+                {victory && game.answer && (
                     <Card className="p-5 flex items-center gap-4 border-good/50 animate-pop">
-                        <img src={spriteUrl(targetPokemon.id)} alt="" className="w-20 h-20 pixelated" />
+                        <img src={spriteUrl(game.answer.id)} alt="" className="w-20 h-20 pixelated" />
                         <div className="flex-1">
-                            <h2 className="text-xl font-semibold">It's <span className="capitalize text-good">{targetPokemon.name}</span>!</h2>
-                            <p className="text-sm text-muted">Solved in {allGuesses.length} {allGuesses.length === 1 ? "guess" : "guesses"}.</p>
+                            <h2 className="text-xl font-semibold">It's <span className="capitalize text-good">{game.answer.name}</span>!</h2>
+                            <p className="text-sm text-muted">Solved in {game.score} {game.score === 1 ? "guess" : "guesses"}.</p>
                         </div>
                         <Button onClick={playAgain}>Play again</Button>
                     </Card>
@@ -68,10 +78,10 @@ export default function SearchBar({ targetPokemon, pokemonInfo, onNewGame }: Sea
                         <div>Weight</div>
                         <div>Type</div>
                     </div>
-                    {allGuesses.map((guessPokemon) => (
-                        targetPokemon && <Guesses guessPokemon={guessPokemon} key={guessPokemon.id} targetPokemon={targetPokemon} />
+                    {guesses.map(comparison => (
+                        <Guesses comparison={comparison} key={comparison.guess.id} />
                     ))}
-                    {allGuesses.length === 0 && (
+                    {guesses.length === 0 && (
                         <p className="text-center text-muted text-sm py-8 rounded-2xl border border-dashed border-line">
                             Your guesses will show up here. Arrows point toward the answer.
                         </p>

@@ -1,6 +1,6 @@
 # PokéWordle
 
-Three browser games for testing how well you know your Pokémon, built with React. Pokémon data comes from its own backend, [pokewordle-api](https://github.com/sashasagebd/pokewordle-api), which is seeded from the free [PokéAPI](https://pokeapi.co/).
+Three browser games for testing how well you know your Pokémon, built with React. The games run on its own backend, [pokewordle-api](https://github.com/sashasagebd/pokewordle-api), which holds the answers (so they can't be read from the page) and is seeded from the free [PokéAPI](https://pokeapi.co/).
 
 **Play it at [pokewordle.sashasagebd.com](https://pokewordle.sashasagebd.com/)**
 
@@ -10,16 +10,16 @@ Three browser games for testing how well you know your Pokémon, built with Reac
 Guess the mystery Pokémon. Each guess shows how its height, weight and types compare to the answer, with arrows pointing toward the right height and weight. Keep guessing until you find it.
 
 ### Higher or Lower
-Two Pokémon side by side: is the second one taller (or heavier) than the first? Switch between height and weight at any time. Every right answer adds to your streak; one wrong answer resets it.
+Two Pokémon side by side: is the second one taller (or heavier) than the first? Switch between height and weight at any time. Every right answer adds to your streak; one wrong answer ends it and starts a new game.
 
 ### Who's That Pokémon?
-Name the Pokémon from its silhouette. You get one guess: right and your streak grows, wrong and it resets. You can also give up to see the answer.
+Name the Pokémon from its silhouette. You get one guess: right and your streak grows, wrong and it ends. You can also give up to see the answer. The silhouette is drawn by the server, so the answer isn't hidden anywhere in the page.
 
 ## Features
 
 - **Generation filter.** Pick any mix of Gens 1–9 on the home page. Every mode only uses Pokémon from those generations, and so do the name suggestions. All generations are selected by default, and selecting none also means all of them.
-- **Saved progress.** Your generation selection and your best streaks are saved in your browser (`localStorage`), so they're still there next time. They don't sync between devices or browsers.
-- **No waiting between rounds.** The streak modes load the next few Pokémon and their images in the background.
+- **Saved progress.** Your generation selection, your best streaks and an anonymous player token are saved in your browser (`localStorage`), so they're still there next time, and a game in progress picks up where it was after a reload. They don't sync between devices or browsers.
+- **No waiting between rounds.** The streak modes load the next round's image in the background.
 - **Name autocomplete.** Type a few letters and choose from suggestions using the mouse or the arrow keys and Enter.
 
 ## Running it locally
@@ -52,7 +52,7 @@ The site is hosted on [Cloudflare Workers](https://developers.cloudflare.com/wor
 - [Vite](https://vite.dev/) for the dev server and builds
 - [Tailwind CSS 4](https://tailwindcss.com/) for styling
 - [React Router](https://reactrouter.com/) for the game routes
-- [pokewordle-api](https://github.com/sashasagebd/pokewordle-api) (Go + Postgres, on my home server) for Pokémon data
+- [pokewordle-api](https://github.com/sashasagebd/pokewordle-api) (Go + Postgres, on my home server) for Pokémon data and the games
 - [PokéAPI](https://pokeapi.co/) sprites
 - [Cloudflare Workers](https://workers.cloudflare.com/) for hosting
 
@@ -62,16 +62,17 @@ The site is hosted on [Cloudflare Workers](https://developers.cloudflare.com/wor
 src/
 ├── components/
 │   ├── HomePage.tsx          # Mode picker and generation filter
-│   ├── PokemonContainer.tsx  # Loads shared data and renders the chosen mode
+│   ├── PokemonContainer.tsx  # Loads the Pokémon list and renders the chosen mode
 │   ├── SearchBar.tsx         # PokéWordle
 │   ├── HigherLower.tsx       # Higher or Lower
 │   ├── GuessPokemon.tsx      # Who's That Pokémon?
 │   ├── PokemonSearch.tsx     # Name input with autocomplete, shared by the guessing modes
 │   └── ...                   # Smaller UI pieces (cards, buttons, streak badge, icons)
-├── services/pokeApi.ts       # API requests and sprite URLs
-├── generations.ts            # Generation ID ranges and random picking
+├── services/pokeApi.ts       # API requests (player token, games, silhouettes) and sprite URLs
+├── generations.ts            # Generation ID ranges
 ├── GenerationsContext.tsx    # Shares and saves the selected generations
-├── usePokemonQueue.ts        # Preloads upcoming Pokémon for the streak modes
+├── useGame.ts                # Starts or resumes the server-side game of a mode
+├── useSilhouettes.ts         # Fetches and preloads Who's That silhouettes
 ├── useBestScore.ts           # Saves best streaks
 └── types.ts
 ```

@@ -17,19 +17,6 @@ function activeGens(gens: number[]) {
     return (gens.length ? gens : ALL_GENS).map(index => GENERATIONS[index]);
 }
 
-// Weighted by generation size so every Pokemon in the selection is equally likely
-export function randomIdFromGens(gens: number[]) {
-    const ranges = activeGens(gens);
-    const total = ranges.reduce((sum, g) => sum + g.end - g.start + 1, 0);
-    let n = Math.floor(Math.random() * total);
-    for(const g of ranges) {
-        const size = g.end - g.start + 1;
-        if(n < size) return g.start + n;
-        n -= size;
-    }
-    return ranges[ranges.length - 1].end;
-}
-
 export function isInGens(id: number, gens: number[]) {
     return activeGens(gens).some(g => id >= g.start && id <= g.end);
 }
