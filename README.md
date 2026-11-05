@@ -1,6 +1,6 @@
 # PokéWordle
 
-Three browser games for testing how well you know your Pokémon, built with React and the free [PokéAPI](https://pokeapi.co/).
+Three browser games for testing how well you know your Pokémon, built with React. Pokémon data comes from its own backend, [pokewordle-api](https://github.com/sashasagebd/pokewordle-api), which is seeded from the free [PokéAPI](https://pokeapi.co/).
 
 **Play it at [pokewordle.sashasagebd.workers.dev](https://pokewordle.sashasagebd.workers.dev/)**
 
@@ -31,6 +31,8 @@ npm install
 npm run dev
 ```
 
+It uses the live API at `https://pokewordle-api.sashasagebd.com`, which allows requests from `http://localhost:5173`. To use another one (say a local copy of pokewordle-api), set `VITE_API_URL`, e.g. in a `.env.local` file: `VITE_API_URL=http://localhost:8080`.
+
 Then open the address Vite prints (usually http://localhost:5173).
 
 | Command | What it does |
@@ -50,7 +52,8 @@ The site is hosted on [Cloudflare Workers](https://developers.cloudflare.com/wor
 - [Vite](https://vite.dev/) for the dev server and builds
 - [Tailwind CSS 4](https://tailwindcss.com/) for styling
 - [React Router](https://reactrouter.com/) for the game routes
-- [PokéAPI](https://pokeapi.co/) for Pokémon data and sprites
+- [pokewordle-api](https://github.com/sashasagebd/pokewordle-api) (Go + Postgres, on my home server) for Pokémon data
+- [PokéAPI](https://pokeapi.co/) sprites
 - [Cloudflare Workers](https://workers.cloudflare.com/) for hosting
 
 ## Project structure
@@ -65,7 +68,7 @@ src/
 │   ├── GuessPokemon.tsx      # Who's That Pokémon?
 │   ├── PokemonSearch.tsx     # Name input with autocomplete, shared by the guessing modes
 │   └── ...                   # Smaller UI pieces (cards, buttons, streak badge, icons)
-├── services/pokeApi.ts       # PokéAPI requests
+├── services/pokeApi.ts       # API requests and sprite URLs
 ├── generations.ts            # Generation ID ranges and random picking
 ├── GenerationsContext.tsx    # Shares and saves the selected generations
 ├── usePokemonQueue.ts        # Preloads upcoming Pokémon for the streak modes

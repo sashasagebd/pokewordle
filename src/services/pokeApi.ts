@@ -1,30 +1,32 @@
 import type { Pokemon } from '../types'
 import { randomIdFromGens } from '../generations'
 
-export async function getPokemonList(limit = 1025) {
-    const res = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=${limit}`);
+// pokewordle-api on the home server. Set VITE_API_URL to use another one,
+// e.g. a local copy at http://localhost:8080.
+const API_URL = (import.meta.env.VITE_API_URL ?? 'https://pokewordle-api.sashasagebd.com').replace(/\/+$/, '');
+
+export const spriteUrl = (id: number) =>
+    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+
+async function get<T>(path: string): Promise<T> {
+    const res = await fetch(`${API_URL}${path}`);
     if(!res.ok) {
-        throw new Error("Error fetching pokemon");
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error ?? `${res.status} ${res.statusText}`);
     }
     return res.json();
 }
 
-export async function getPokemon(name: string) {
-    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
-    if(!res.ok) {
-        throw new Error("Error fetching specific pokemon");
-    }
-    return res.json();
+// Every Pokémon in dex order (about 100 KB, cached by the browser for an hour)
+export function getPokemonList(): Promise<Pokemon[]> {
+    return get('/pokemon');
 }
 
-export async function getPokemonPic(num: number) {
-    const res = await fetch (`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${num}.png`)
-    if(!res.ok) {
-        throw new Error("Error fetching pokemon png")
-    }
-    return res;
+// One Pokémon by dex number or name
+export function getPokemon(nameOrId: string | number): Promise<Pokemon> {
+    return get(`/pokemon/${encodeURIComponent(String(nameOrId).trim().toLowerCase())}`);
 }
 
-export async function getRandomPokemon(gens: number[]): Promise<Pokemon> {
-    return getPokemon(String(randomIdFromGens(gens)));
+export function getRandomPokemon(gens: number[]): Promise<Pokemon> {
+    return getPokemon(randomIdFromGens(gens));
 }

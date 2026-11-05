@@ -1,5 +1,6 @@
 import type { HLProps, Pokemon } from '../types'
 import { useState, useEffect, type ReactNode } from 'react'
+import { spriteUrl } from '../services/pokeApi'
 import GameLayout from './GameLayout'
 import Card from './Card'
 import StreakBadge from './StreakBadge'
@@ -22,7 +23,7 @@ function PokemonCard({ pokemon, value, hidden, children }: { pokemon: Pokemon | 
         <Card className="flex-1 w-full p-4 sm:p-6 flex flex-col items-center text-center">
             <div className="w-28 h-28 sm:w-52 sm:h-52 rounded-full bg-surface-2 flex items-center justify-center">
                 {pokemon ? (
-                    <img key={pokemon.id} src={pokemon.sprites.front_default} alt={pokemon.name} className="w-full h-full pixelated animate-pop" draggable={false} />
+                    <img key={pokemon.id} src={spriteUrl(pokemon.id)} alt={pokemon.name} className="w-full h-full pixelated animate-pop" draggable={false} />
                 ) : (
                     <img src={pokeBall} alt="Loading" className="w-16 h-16 animate-spin opacity-60" />
                 )}

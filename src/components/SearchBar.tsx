@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { SearchProps, Pokemon } from '../types';
-import { getPokemon } from '../services/pokeApi';
+import { getPokemon, spriteUrl } from '../services/pokeApi';
 import Guesses, { guessGrid } from './Guesses';
 import GameLayout from './GameLayout';
 import Card from './Card';
@@ -52,7 +52,7 @@ export default function SearchBar({ targetPokemon, pokemonInfo, onNewGame }: Sea
 
                 {victory && targetPokemon && (
                     <Card className="p-5 flex items-center gap-4 border-good/50 animate-pop">
-                        <img src={targetPokemon.sprites.front_default} alt="" className="w-20 h-20 pixelated" />
+                        <img src={spriteUrl(targetPokemon.id)} alt="" className="w-20 h-20 pixelated" />
                         <div className="flex-1">
                             <h2 className="text-xl font-semibold">It's <span className="capitalize text-good">{targetPokemon.name}</span>!</h2>
                             <p className="text-sm text-muted">Solved in {allGuesses.length} {allGuesses.length === 1 ? "guess" : "guesses"}.</p>

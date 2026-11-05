@@ -3,8 +3,8 @@ import Card from './Card'
 import pokeBall from '../assets/pokeball.svg'
 import { GENERATIONS } from '../generations'
 import { useGenerations } from '../useGenerations'
+import { spriteUrl } from '../services/pokeApi'
 
-const spriteUrl = (id: number) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
 
 const modes = [
     { to: "pokewordle", title: "PokéWordle", blurb: "Guess the mystery Pokémon from height, weight and type clues.", sprite: 25, silhouette: false },

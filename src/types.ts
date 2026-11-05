@@ -1,12 +1,13 @@
 import type { ReactNode } from "react";
 
+// As pokewordle-api serves it. Height is in decimetres and weight in hectograms.
 export interface Pokemon {
     id: number;
     name: string;
-    sprites: { front_default: string };
+    generation: number;
     height: number;
     weight: number;
-    types: { type: { name: string } }[];
+    types: string[];
 }
 
 export interface PokemonInfo {

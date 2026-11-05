@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { GuessPokemonProps, Pokemon } from '../types'
+import { spriteUrl } from '../services/pokeApi'
 import GameLayout from './GameLayout'
 import Card from './Card'
 import Button from './Button'
@@ -92,7 +93,7 @@ export default function GuessPokemon({ starterPokemon, pokemonInfo }: GuessPokem
                     {pokemon ? (
                         <img
                             key={pokemon.id}
-                            src={pokemon.sprites.front_default}
+                            src={spriteUrl(pokemon.id)}
                             alt={revealed ? pokemon.name : "Mystery Pokémon"}
                             className={`w-[85%] h-[85%] pixelated animate-pop transition-[filter] duration-500 ${revealed ? "" : "brightness-0"}`}
                             draggable={false}

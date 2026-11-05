@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { Pokemon } from '../types'
-import { getPokemonList, getRandomPokemon } from "../services/pokeApi";
+import { getPokemonList, getRandomPokemon, spriteUrl } from "../services/pokeApi";
 import SearchBar from './SearchBar';
 import HigherLower from './HigherLower';
 import GuessPokemon from './GuessPokemon';
@@ -8,19 +8,15 @@ import { isInGens } from '../generations';
 import { useGenerations } from '../useGenerations';
 
 export default function PokemonContainer({ gamemode }: { gamemode: string }) {
-    const [pokemon, setPokemon] = useState<{name: string, url: string}[]>([]);
+    const [pokemon, setPokemon] = useState<Pokemon[]>([]);
     const [onepokemon, setOnePokemon] = useState<Pokemon | null>(null);
     const { selected } = useGenerations();
 
     // Only suggest Pokemon from the selected generations
-    const pokemonInfo = useMemo(() => pokemon.flatMap((p) => {
-        const id = Number(p.url.split('/').filter(Boolean).pop());
-        if(!isInGens(id, selected)) return [];
-        return [{
-            name: p.name,
-            sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`
-        }];
-    }), [pokemon, selected]);
+    const pokemonInfo = useMemo(() => pokemon
+        .filter(p => isInGens(p.id, selected))
+        .map(p => ({ name: p.name, sprite: spriteUrl(p.id) })),
+    [pokemon, selected]);
 
     async function getOnePokemon() {
         try {
@@ -34,8 +30,7 @@ export default function PokemonContainer({ gamemode }: { gamemode: string }) {
     useEffect(() => {
         async function getData() {
             try {
-                const pokeData = await getPokemonList();
-                setPokemon(pokeData.results)
+                setPokemon(await getPokemonList());
             } catch (err) {
                 console.error(err);
             }

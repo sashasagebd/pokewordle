@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import type { Pokemon } from './types';
-import { getRandomPokemon } from './services/pokeApi';
+import { getRandomPokemon, spriteUrl } from './services/pokeApi';
 
 const QUEUE_SIZE = 3;
 
@@ -15,7 +15,7 @@ function preloadImage(src: string) {
 
 async function fetchReadyPokemon(gens: number[]) {
     const pokemon = await getRandomPokemon(gens);
-    await preloadImage(pokemon.sprites.front_default);
+    await preloadImage(spriteUrl(pokemon.id));
     return pokemon;
 }
 

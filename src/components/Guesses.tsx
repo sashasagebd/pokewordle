@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { GuessProps } from '../types';
+import { spriteUrl } from '../services/pokeApi';
 import { ArrowUp, ArrowDown, Check } from './Icons';
 
 const typeMatchups: Record<string, { effective: string[], notEffective: string[] }> = {
@@ -129,12 +130,12 @@ export default function Guesses( {guessPokemon, targetPokemon}: GuessProps ) {
     return(
         <div className={`${guessGrid} animate-pop`}>
             <div className={`h-20 rounded-xl border flex items-center gap-1 pr-2 ${correct ? "bg-good/15 border-good/50" : "bg-surface-2 border-line"}`}>
-                <img src={guessPokemon.sprites.front_default} alt="" className="w-16 h-16 shrink-0 pixelated" />
+                <img src={spriteUrl(guessPokemon.id)} alt="" className="w-16 h-16 shrink-0 pixelated" />
                 <p className="capitalize font-semibold text-sm truncate">{guessPokemon.name}</p>
             </div>
             {compareTwo(guessPokemon.height, targetPokemon.height, "m")}
             {compareTwo(guessPokemon.weight, targetPokemon.weight, "kg")}
-            {typeMatchup(guessPokemon.types[0].type.name, targetPokemon.types[0].type.name)}
+            {typeMatchup(guessPokemon.types[0], targetPokemon.types[0])}
         </div>
     )
 }
