@@ -1,6 +1,11 @@
 {
   "name": "pokewordle",
   "compatibility_date": "2026-10-01",
+  // Served at pokewordle.sashasagebd.com; Cloudflare makes the DNS record and
+  // certificate. The workers.dev address keeps working too.
+  "routes": [
+    { "pattern": "pokewordle.sashasagebd.com", "custom_domain": true }
+  ],
   "assets": {
     "directory": "./dist",
     // Send unknown paths like /higherlower to index.html so React Router can handle them
