@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Game, Mode } from './types';
-import { apiGens, getGame, startGame } from './services/pokeApi';
+import { apiGens, errorMessage, getGame, startGame } from './services/pokeApi';
 import { useGenerations } from './useGenerations';
 import { sameGens } from './generations';
 
@@ -58,7 +58,7 @@ export function useGame(mode: Mode) {
             opening.set(mode, p);
         }
         p.then(g => { if(!cancelled) setGame(g); })
-         .catch(err => { if(!cancelled) setLoadError(`Couldn't reach the game server: ${err.message}`); });
+         .catch(err => { if(!cancelled) setLoadError(errorMessage(err, `Couldn't reach the game server: ${err.message}`)); });
         return () => { cancelled = true; };
     // Generations only change on the home page, so this runs once per visit
     // eslint-disable-next-line react-hooks/exhaustive-deps

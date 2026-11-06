@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import type { Game, GuessPokemonProps, Pokemon } from '../types'
-import { ApiError, answer, giveUp, spriteUrl } from '../services/pokeApi'
+import { ApiError, answer, giveUp, spriteUrl, errorMessage } from '../services/pokeApi'
 import GameLayout from './GameLayout'
 import Card from './Card'
 import Button from './Button'
@@ -42,7 +42,7 @@ export default function GuessPokemon({ pokemonInfo }: GuessPokemonProps) {
         if(ready) setImage({ key, url: ready });
         silhouettes.get(game.id, round.n).then(
             url => { if(!cancelled) setImage({ key, url }); },
-            err => { console.error(err); if(!cancelled) setError("Couldn't load the silhouette."); },
+            err => { console.error(err); if(!cancelled) setError(errorMessage(err, "Couldn't load the silhouette.")); },
         );
         silhouettes.get(game.id, round.n + 1).catch(() => {});
         return () => { cancelled = true; };
@@ -82,7 +82,7 @@ export default function GuessPokemon({ pokemonInfo }: GuessPokemonProps) {
                 setGame(err.game); // that round was already answered: catch up
             } else {
                 console.error(err);
-                setError("Couldn't reach the game server. Try again.");
+                setError(errorMessage(err, "Couldn't reach the game server. Try again."));
             }
         } finally {
             busy.current = false;
@@ -99,7 +99,7 @@ export default function GuessPokemon({ pokemonInfo }: GuessPokemonProps) {
             if(over.answer) setResult({ outcome: "gaveUp", answer: over.answer, streak: 0 });
         } catch(err) {
             console.error(err);
-            setError("Couldn't reach the game server. Try again.");
+            setError(errorMessage(err, "Couldn't reach the game server. Try again."));
         } finally {
             busy.current = false;
         }
@@ -115,7 +115,7 @@ export default function GuessPokemon({ pokemonInfo }: GuessPokemonProps) {
         } catch(err) {
             console.error(err);
             pending.current = null; // the next click tries afresh
-            setError("Couldn't start a new game. Try again.");
+            setError(errorMessage(err, "Couldn't start a new game. Try again."));
         }
     }
 

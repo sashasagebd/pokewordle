@@ -1,6 +1,6 @@
 import type { Named, Pokemon } from '../types'
 import { useState, useEffect, useRef, type ReactNode } from 'react'
-import { ApiError, answer, spriteUrl } from '../services/pokeApi'
+import { ApiError, answer, spriteUrl, errorMessage } from '../services/pokeApi'
 import GameLayout from './GameLayout'
 import Card from './Card'
 import Button from './Button'
@@ -71,7 +71,7 @@ export default function HigherLower() {
             setError('');
         } catch(err) {
             console.error(err);
-            setError("Couldn't start a new game.");
+            setError(errorMessage(err, "Couldn't start a new game."));
         }
     }
 
@@ -93,7 +93,7 @@ export default function HigherLower() {
                 setGame(err.game); // that round was already answered: catch up
             } else {
                 console.error(err);
-                setError("Couldn't reach the game server. Try again.");
+                setError(errorMessage(err, "Couldn't reach the game server. Try again."));
             }
         } finally {
             busy.current = false;

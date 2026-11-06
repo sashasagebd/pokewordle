@@ -20,6 +20,12 @@ export class ApiError extends Error {
     }
 }
 
+// What to tell the player about a failed request: the server's own message
+// when it's over a rate limit (it says to slow down), otherwise fallback.
+export function errorMessage(err: unknown, fallback: string): string {
+    return err instanceof ApiError && err.status === 429 ? err.message : fallback;
+}
+
 async function check(res: Response): Promise<Response> {
     if(!res.ok) {
         const body = await res.json().catch(() => null);

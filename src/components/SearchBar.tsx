@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import type { SearchProps } from '../types';
-import { ApiError, guess, spriteUrl } from '../services/pokeApi';
+import { ApiError, guess, spriteUrl, errorMessage } from '../services/pokeApi';
 import { useGame } from '../useGame';
 import { useBestScore } from '../useBestScore';
 import Guesses, { guessGrid } from './Guesses';
@@ -32,7 +32,7 @@ export default function SearchBar({ pokemonInfo }: SearchProps) {
                 setError(err.message);
             } else {
                 console.error(err);
-                setError("Couldn't send that guess. Try again.");
+                setError(errorMessage(err, "Couldn't send that guess. Try again."));
             }
         } finally {
             busy.current = false;
@@ -45,7 +45,7 @@ export default function SearchBar({ pokemonInfo }: SearchProps) {
             setGame(await newGame());
         } catch(err) {
             console.error(err);
-            setError("Couldn't start a new game. Try again.");
+            setError(errorMessage(err, "Couldn't start a new game. Try again."));
         }
     }
 

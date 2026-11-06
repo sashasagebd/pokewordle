@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import type { Leaderboard, Mode } from '../types'
-import { getLeaderboard } from '../services/pokeApi'
+import { getLeaderboard, errorMessage } from '../services/pokeApi'
 import { GENERATIONS } from '../generations'
 import { useGenerations } from '../useGenerations'
 import { usePlayer } from '../usePlayer'
@@ -39,7 +39,7 @@ export default function LeaderboardPage() {
         setError('');
         getLeaderboard(mode, selected).then(
             b => { if(!cancelled) setBoard(b); },
-            err => { console.error(err); if(!cancelled) setError("Couldn't load the leaderboard."); },
+            err => { console.error(err); if(!cancelled) setError(errorMessage(err, "Couldn't load the leaderboard.")); },
         );
         return () => { cancelled = true; };
     }, [mode, selected]);
