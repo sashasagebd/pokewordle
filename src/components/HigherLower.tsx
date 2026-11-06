@@ -43,7 +43,7 @@ function preload(id: number) {
 export default function HigherLower() {
     const { game, setGame, newGame, loadError } = useGame("higher_lower");
     const [ category, setCategory ] = useState<number>(0);
-    const { best, recordStreak } = useBestScore("higherlower");
+    const { best, recordScore } = useBestScore("higher_lower");
     const [ result, setResult ] = useState<{ correct: boolean, text: string } | null>(null);
     // Bumped on each wrong guess so the flash overlay remounts and replays
     const [ wrongFlash, setWrongFlash ] = useState<number>(0);
@@ -82,7 +82,7 @@ export default function HigherLower() {
             const res = await answer(game.id, { n: round.n, dir: higher ? "higher" : "lower", stat: key });
             setResult({ correct: res.correct, text: `${res.answer.name} is ${format(res.answer)}` });
             if(res.correct) {
-                recordStreak(res.game.score);
+                recordScore(res.game.score);
                 setGame(res.game);
             } else {
                 setWrongFlash(n => n + 1);
@@ -103,7 +103,7 @@ export default function HigherLower() {
     const message = error || loadError;
 
     return(
-        <GameLayout title="Higher or Lower">
+        <GameLayout title="Higher or Lower" mode="higher_lower">
             <WrongFlash count={wrongFlash} />
             <div className="w-full max-w-4xl flex flex-col items-center gap-4 sm:gap-6">
                 <div className="inline-flex rounded-full border border-line bg-surface p-1">

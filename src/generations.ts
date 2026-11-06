@@ -20,3 +20,8 @@ function activeGens(gens: number[]) {
 export function isInGens(id: number, gens: number[]) {
     return activeGens(gens).some(g => id >= g.start && id <= g.end);
 }
+
+// Whether two lists of generations are the same (both in order)
+export function sameGens(a: number[], b: number[]) {
+    return a.length === b.length && a.every((g, i) => g === b[i]);
+}

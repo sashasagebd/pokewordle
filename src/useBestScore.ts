@@ -1,31 +1,17 @@
-import { useEffect, useState } from 'react';
+import type { Mode } from './types';
+import { apiGens } from './services/pokeApi';
+import { sameGens } from './generations';
+import { useGenerations } from './useGenerations';
+import { usePlayer } from './usePlayer';
 
-function loadBest(key: string) {
-    try {
-        const saved = Number(localStorage.getItem(key));
-        return Number.isInteger(saved) && saved > 0 ? saved : 0;
-    } catch {
-        // Storage unavailable, start from zero
-        return 0;
-    }
-}
+// The player's best for a mode and the selected generations, as the server
+// keeps it (0 if there's none yet). recordScore updates it at once after a
+// move the server counted; the server records it itself.
+export function useBestScore(mode: Mode) {
+    const { me, recordScore } = usePlayer();
+    const { selected } = useGenerations();
+    const gens = apiGens(selected);
+    const best = me?.best.find(b => b.mode === mode && sameGens(b.gens, gens))?.best ?? 0;
 
-// Best streak for a game mode, remembered in this browser between visits
-export function useBestScore(mode: string) {
-    const key = `bestScore:${mode}`;
-    const [ best, setBest ] = useState<number>(() => loadBest(key));
-
-    useEffect(() => {
-        try {
-            localStorage.setItem(key, String(best));
-        } catch {
-            // Not being able to save the score isn't worth breaking the game over
-        }
-    }, [key, best]);
-
-    function recordStreak(streak: number) {
-        setBest(b => Math.max(b, streak));
-    }
-
-    return { best, recordStreak };
+    return { best, recordScore: (score: number) => recordScore(mode, gens, score) };
 }

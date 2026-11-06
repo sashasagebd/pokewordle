@@ -18,7 +18,9 @@ Name the Pokémon from its silhouette. You get one guess: right and your streak 
 ## Features
 
 - **Generation filter.** Pick any mix of Gens 1–9 on the home page. Every mode only uses Pokémon from those generations, and so do the name suggestions. All generations are selected by default, and selecting none also means all of them.
-- **Saved progress.** Your generation selection, your best streaks and an anonymous player token are saved in your browser (`localStorage`), so they're still there next time, and a game in progress picks up where it was after a reload. They don't sync between devices or browsers.
+- **Leaderboards.** Every mode has a leaderboard for each set of generations: fewest guesses in PokéWordle, longest streak in the others. Scores are counted by the server, from games it ran.
+- **Accounts, optional.** You start as a guest. Claim a name (and a password) to get on the leaderboards, keeping everything you've played, and log in with it on other devices. Logging in on a device where you've played as a guest brings that progress with you.
+- **Saved progress.** Your generation selection and your player token are saved in your browser (`localStorage`), and a game in progress picks up where it was after a reload. Best scores are kept on the server.
 - **No waiting between rounds.** The streak modes load the next round's image in the background.
 - **Name autocomplete.** Type a few letters and choose from suggestions using the mouse or the arrow keys and Enter.
 
@@ -61,19 +63,22 @@ The site is hosted on [Cloudflare Workers](https://developers.cloudflare.com/wor
 ```
 src/
 ├── components/
-│   ├── HomePage.tsx          # Mode picker and generation filter
+│   ├── HomePage.tsx          # Mode picker, generation filter, account
 │   ├── PokemonContainer.tsx  # Loads the Pokémon list and renders the chosen mode
 │   ├── SearchBar.tsx         # PokéWordle
 │   ├── HigherLower.tsx       # Higher or Lower
 │   ├── GuessPokemon.tsx      # Who's That Pokémon?
 │   ├── PokemonSearch.tsx     # Name input with autocomplete, shared by the guessing modes
+│   ├── AccountCard.tsx       # Guest, claim a name, log in and out
+│   ├── LeaderboardPage.tsx   # Leaderboards
 │   └── ...                   # Smaller UI pieces (cards, buttons, streak badge, icons)
 ├── services/pokeApi.ts       # API requests (player token, games, silhouettes) and sprite URLs
 ├── generations.ts            # Generation ID ranges
 ├── GenerationsContext.tsx    # Shares and saves the selected generations
 ├── useGame.ts                # Starts or resumes the server-side game of a mode
 ├── useSilhouettes.ts         # Fetches and preloads Who's That silhouettes
-├── useBestScore.ts           # Saves best streaks
+├── PlayerContext.tsx         # Shares the player's name and best scores
+├── useBestScore.ts           # The best score for a mode and the selected generations
 └── types.ts
 ```
 

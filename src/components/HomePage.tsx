@@ -4,6 +4,7 @@ import pokeBall from '../assets/pokeball.svg'
 import { GENERATIONS } from '../generations'
 import { useGenerations } from '../useGenerations'
 import { spriteUrl } from '../services/pokeApi'
+import AccountCard from './AccountCard'
 
 
 const modes = [
@@ -23,6 +24,7 @@ export default function HomePage() {
                     Poké<span className="text-poke">Wordle</span>
                 </h1>
                 <p className="text-muted max-w-md">Three ways to test how well you really know your Pokémon.</p>
+                <Link to="/leaderboard" className="text-sm font-semibold text-gold hover:underline">🏆 Leaderboards</Link>
             </header>
 
             <div className="grid gap-4 w-full max-w-4xl sm:grid-cols-3">
@@ -62,6 +64,8 @@ export default function HomePage() {
                     <p className="text-sm text-muted mt-3">None selected, so all generations will be used.</p>
                 )}
             </Card>
+
+            <AccountCard />
         </div>
     )
 }

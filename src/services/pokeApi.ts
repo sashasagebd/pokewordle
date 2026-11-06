@@ -1,4 +1,4 @@
-import type { Answer, Comparison, Game, Mode, Pokemon } from '../types'
+import type { Answer, Comparison, Game, Leaderboard, Me, Mode, Pokemon } from '../types'
 
 // pokewordle-api on the home server. Set VITE_API_URL to use another one,
 // e.g. a local copy at http://localhost:8080.
@@ -68,6 +68,19 @@ function forgetToken() {
     try { localStorage.removeItem(TOKEN_KEY); } catch { /* unavailable */ }
 }
 
+function saveToken(token: string) {
+    memoryToken = token;
+    try { localStorage.setItem(TOKEN_KEY, token); } catch { /* unavailable */ }
+}
+
+// The token if there is one, without making a player for it
+function knownToken(): string | null {
+    if(!memoryToken) {
+        try { memoryToken = localStorage.getItem(TOKEN_KEY); } catch { /* unavailable */ }
+    }
+    return memoryToken;
+}
+
 // fetch with the player's token. An unknown token gets a new one and one
 // retry (the old token's games are gone with it).
 async function authed(path: string, init: RequestInit = {}, retried = false): Promise<Response> {
@@ -118,6 +131,49 @@ export function answer(id: string, a: Answer): Promise<{ correct: boolean, answe
 
 export function giveUp(id: string): Promise<Game> {
     return post(`/games/${encodeURIComponent(id)}/give-up`);
+}
+
+// --- Accounts and leaderboards ----------------------------------------------
+
+export async function getMe(): Promise<Me> {
+    return (await authed('/me')).json();
+}
+
+// Gives this guest a name and password, keeping everything played so far
+export function claimName(username: string, password: string): Promise<{ username: string }> {
+    return post('/me/username', { username, password });
+}
+
+// Logs in to an account. Sent with this browser's guest token, so the
+// guest's games and bests join the account.
+export async function logIn(username: string, password: string): Promise<{ username: string }> {
+    const token = knownToken();
+    // Not authed(): a 401 here means a wrong password, not a lost token
+    const res = await check(await fetch(`${API_URL}/sessions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({ username, password }),
+    }));
+    const body = await res.json() as { token: string, username: string };
+    saveToken(body.token);
+    return { username: body.username };
+}
+
+// Logs out; the next request plays as a new guest
+export async function logOut(): Promise<void> {
+    try {
+        await authed('/sessions/current', { method: 'DELETE' });
+    } finally {
+        forgetToken();
+    }
+}
+
+export async function getLeaderboard(mode: Mode, selected: number[]): Promise<Leaderboard> {
+    const token = knownToken();
+    const res = await check(await fetch(`${API_URL}/leaderboard?mode=${mode}&gens=${apiGens(selected).join(',')}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+    }));
+    return res.json();
 }
 
 // A Who's That round's silhouette as an object URL. An <img> can't send the

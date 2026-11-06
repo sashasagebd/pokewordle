@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Game, Mode } from './types';
 import { apiGens, getGame, startGame } from './services/pokeApi';
 import { useGenerations } from './useGenerations';
+import { sameGens } from './generations';
 
 const storageKey = (mode: Mode) => `game:${mode}`;
 
@@ -20,8 +21,6 @@ function saveGameId(mode: Mode, id: string) {
         // Then a reload starts a new game; nothing worse
     }
 }
-
-const sameGens = (a: number[], b: number[]) => a.length === b.length && a.every((g, i) => g === b[i]);
 
 // Opening a game is shared while in flight, so mounting twice (React's
 // StrictMode does) doesn't start two games, the second abandoning the first.

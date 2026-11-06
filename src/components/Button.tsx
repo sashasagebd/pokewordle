@@ -5,10 +5,11 @@ const variants: Record<ButtonVariant, string> = { //Record is key, value
     secondary: "bg-surface-2 hover:bg-line text-white border border-line",
 }
 
-export default function Button({ children, onClick, variant = "primary", className = "", disabled, autoFocus }: ButtonProps) {
+export default function Button({ children, onClick, variant = "primary", className = "", disabled, autoFocus, type = "button" }: ButtonProps) {
 
     return(
         <button
+            type={type}
             onClick={onClick}
             disabled={disabled}
             autoFocus={autoFocus}

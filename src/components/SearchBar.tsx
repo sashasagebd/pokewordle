@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import type { SearchProps } from '../types';
 import { ApiError, guess, spriteUrl } from '../services/pokeApi';
 import { useGame } from '../useGame';
+import { useBestScore } from '../useBestScore';
 import Guesses, { guessGrid } from './Guesses';
 import GameLayout from './GameLayout';
 import Card from './Card';
@@ -10,6 +11,7 @@ import PokemonSearch from './PokemonSearch';
 
 export default function SearchBar({ pokemonInfo }: SearchProps) {
     const { game, setGame, newGame, loadError } = useGame("wordle");
+    const { best, recordScore } = useBestScore("wordle");
     const [ error, setError ] = useState<string>('');
     // Guesses wait for the one before (not by disabling the input, which would lose focus)
     const busy = useRef<boolean>(false);
@@ -23,6 +25,7 @@ export default function SearchBar({ pokemonInfo }: SearchProps) {
         busy.current = true;
         try {
             const res = await guess(game.id, pokeName);
+            if(res.game.status === "won") recordScore(res.game.score);
             setGame(res.game);
         } catch(err) {
             if(err instanceof ApiError && err.status === 400) {
@@ -47,7 +50,7 @@ export default function SearchBar({ pokemonInfo }: SearchProps) {
     }
 
     return(
-        <GameLayout title="PokéWordle" subtitle="Find the mystery Pokémon">
+        <GameLayout title="PokéWordle" subtitle="Find the mystery Pokémon" mode="wordle">
             <div className="w-full max-w-2xl flex flex-col gap-6">
                 <div>
                     <PokemonSearch
@@ -65,7 +68,10 @@ export default function SearchBar({ pokemonInfo }: SearchProps) {
                         <img src={spriteUrl(game.answer.id)} alt="" className="w-20 h-20 pixelated" />
                         <div className="flex-1">
                             <h2 className="text-xl font-semibold">It's <span className="capitalize text-good">{game.answer.name}</span>!</h2>
-                            <p className="text-sm text-muted">Solved in {game.score} {game.score === 1 ? "guess" : "guesses"}.</p>
+                            <p className="text-sm text-muted">
+                                Solved in {game.score} {game.score === 1 ? "guess" : "guesses"}.
+                                {best > 0 && <> Your best: <span className="text-gold font-semibold">{best}</span>.</>}
+                            </p>
                         </div>
                         <Button onClick={playAgain}>Play again</Button>
                     </Card>

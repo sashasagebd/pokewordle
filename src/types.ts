@@ -62,6 +62,34 @@ export interface Game {
     answer?: Pokemon;   // once the game is over
 }
 
+// A best score for a mode and exact set of generations (1 to 9)
+export interface Best {
+    mode: Mode;
+    gens: number[];
+    best: number;       // Wordle: fewest guesses; the others: longest streak
+    gameId: string;
+    achievedAt: string;
+}
+
+export interface Me {
+    username: string | null; // null for a guest
+    best: Best[];
+}
+
+export interface LeaderboardEntry {
+    rank: number;
+    username: string;
+    best: number;
+    achievedAt: string;
+}
+
+export interface Leaderboard {
+    entries: LeaderboardEntry[];
+    // With a token, if the player has a best here. rank is null for a guest,
+    // who isn't on the board until they claim a name.
+    me?: { rank: number | null, best: number };
+}
+
 export type Answer =
     | { n: number, dir: "higher" | "lower", stat: "height" | "weight" }
     | { n: number, name: string };
@@ -94,6 +122,7 @@ export interface ButtonProps {
     className?: string;
     disabled?: boolean;
     autoFocus?: boolean;
+    type?: "button" | "submit";
 }
 
 export interface CardProps {

@@ -21,7 +21,7 @@ export default function GuessPokemon({ pokemonInfo }: GuessPokemonProps) {
     // The silhouette and the round it's for, so a new round never shows the last one's
     const [ image, setImage ] = useState<{ key: string, url: string } | null>(null);
     const [ result, setResult ] = useState<Result>(null);
-    const { best, recordStreak } = useBestScore("guesspokemon");
+    const { best, recordScore } = useBestScore("whos_that");
     const [ error, setError ] = useState<string>('');
     const [ wrongFlash, setWrongFlash ] = useState<number>(0);
     // What "Next Pokémon" shows: this game's next round, or a new game after a loss
@@ -68,7 +68,7 @@ export default function GuessPokemon({ pokemonInfo }: GuessPokemonProps) {
         try {
             const res = await answer(game.id, { n: round.n, name });
             if(res.correct) {
-                recordStreak(res.game.score);
+                recordScore(res.game.score);
                 pending.current = Promise.resolve(res.game);
             } else {
                 setWrongFlash(n => n + 1);
@@ -128,7 +128,7 @@ export default function GuessPokemon({ pokemonInfo }: GuessPokemonProps) {
     const shown = result ? spriteUrl(result.answer.id) : silhouette;
 
     return(
-        <GameLayout title="Who's That Pokémon?">
+        <GameLayout title="Who's That Pokémon?" mode="whos_that">
             <WrongFlash count={wrongFlash} />
             <div className="w-full max-w-md flex flex-col items-center gap-4">
                 <StreakBadge streak={streak} best={best} />
