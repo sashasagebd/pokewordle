@@ -190,6 +190,7 @@ export interface Room {
     status: RoomStatus;
     mode: Mode;         // the next round's
     gens: number[];     // 1 to 9
+    quick: boolean;     // a quick match: the first round starts by itself once both are connected
     you: string;
     host: string;
     members: RoomMember[];

@@ -214,3 +214,16 @@ export function roomSocketUrl(ticket: string): string {
 
 // Room codes are 6 characters, without ones easily misread (0/O, 1/I/L)
 export const ROOM_CODE = /^[A-HJKMNP-Z2-9]{6}$/;
+
+// Quick match: ask for an opponent in a mode and the selected generations,
+// and keep asking every couple of seconds (stopping counts as leaving) until
+// matched into a room.
+export type QueueStatus = { status: "waiting" } | { status: "matched", code: string };
+
+export function queueFor(mode: Mode, selected: number[]): Promise<QueueStatus> {
+    return post('/queue', { mode, gens: apiGens(selected) });
+}
+
+export async function leaveQueue(): Promise<void> {
+    await authed('/queue', { method: 'DELETE' });
+}

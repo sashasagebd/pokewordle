@@ -149,6 +149,30 @@ function Lobby({ room, now, send, error }: { room: Room, now: number, send: Send
         navigate("/versus");
     }
 
+    // A quick match before its first round: it starts by itself once both
+    // players are connected.
+    if(room.quick && !room.round) {
+        const opponent = room.members.find(m => m.id !== room.you);
+        return (
+            <Card className="p-8 flex flex-col items-center gap-3 text-center">
+                <p className="text-sm text-muted">Quick match: {modeTitle(room.mode)}</p>
+                {opponent ? (
+                    <>
+                        <h2 className="text-2xl font-semibold">You vs {opponent.name}</h2>
+                        <p className="text-muted">
+                            {opponent.connected ? "Starting…" : "Waiting for them to connect…"}
+                        </p>
+                    </>
+                ) : (
+                    <>
+                        <h2 className="text-2xl font-semibold">Your opponent didn't turn up</h2>
+                        <Button onClick={leave}>Find another match</Button>
+                    </>
+                )}
+            </Card>
+        );
+    }
+
     return (
         <>
             {last && <Results room={room} round={last} />}
