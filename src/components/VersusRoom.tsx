@@ -125,9 +125,9 @@ function Lobby({ room, now, send, error }: { room: Room, now: number, send: Send
     const canStart = room.members.length >= 2 && everyoneReady;
     const last = room.round?.finishedAt ? room.round : undefined;
 
-    async function copyLink() {
+    async function copyCode() {
         try {
-            await navigator.clipboard.writeText(window.location.href);
+            await navigator.clipboard.writeText(room.code);
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
         } catch {
@@ -158,7 +158,7 @@ function Lobby({ room, now, send, error }: { room: Room, now: number, send: Send
                     <p className="text-sm text-muted">Send your friends the code</p>
                     <p className="font-display text-4xl font-bold tracking-[0.25em]">{room.code}</p>
                 </div>
-                <Button variant="secondary" onClick={copyLink}>{copied ? "Copied!" : "Copy link"}</Button>
+                <Button variant="secondary" onClick={copyCode}>{copied ? "Copied!" : "Copy code"}</Button>
             </Card>
 
             <Card className="p-5 flex flex-col gap-3">
