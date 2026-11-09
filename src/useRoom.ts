@@ -149,13 +149,18 @@ export function useRoom(code: string) {
     return { room, game, lastAnswer, connection, closedReason, offset, error, clearError: () => setError(null), send };
 }
 
-// The server's time now, ticking every interval ms while active
+// The server's time now, re-rendering every interval ms while active.
+//
+// The clock is read on every render, not kept from the last tick: a render
+// the tick didn't cause (the round starting, after a quiet lobby) would
+// otherwise show a time from the last tick, minutes ago, and the countdown
+// would flash a far-off number before its 3.
 export function useServerNow(offset: number, active: boolean, interval = 250): number {
-    const [ now, setNow ] = useState(() => Date.now());
+    const [ , setTick ] = useState(0);
     useEffect(() => {
         if(!active) return;
-        const t = setInterval(() => setNow(Date.now()), interval);
+        const t = setInterval(() => setTick(n => n + 1), interval);
         return () => clearInterval(t);
     }, [active, interval]);
-    return now + offset;
+    return Date.now() + offset;
 }
