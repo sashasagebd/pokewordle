@@ -46,6 +46,20 @@ export default function HomePage() {
                 ))}
             </div>
 
+            <Link to="/versus" className="group mt-4 w-full max-w-4xl">
+                <Card className="p-5 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left transition group-hover:-translate-y-1 group-hover:border-poke/60">
+                    <div className="flex -space-x-4 shrink-0">
+                        <img src={spriteUrl(6)} alt="" className="w-20 h-20 pixelated transition group-hover:scale-110" />
+                        <img src={spriteUrl(9)} alt="" className="w-20 h-20 pixelated -scale-x-100 transition group-hover:scale-110 group-hover:-scale-x-110" />
+                    </div>
+                    <div className="flex-1">
+                        <h2 className="text-xl font-semibold">Versus <span className="ml-1 align-middle rounded-full bg-gold/15 text-gold text-xs font-semibold px-2 py-0.5">New</span></h2>
+                        <p className="text-sm text-muted mt-1">Race up to 3 friends to the same mystery Pokémon, live. Make a room and send them the code.</p>
+                    </div>
+                    <span className="rounded-xl bg-poke group-hover:bg-poke-dark px-5 py-2 font-display font-semibold transition">Play</span>
+                </Card>
+            </Link>
+
             <Card className="mt-8 w-full max-w-4xl p-5">
                 <h2 className="font-semibold text-lg">Generations</h2>
                 <p className="text-sm text-muted mb-3">Pick which generations to include.</p>

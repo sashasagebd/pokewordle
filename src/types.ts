@@ -131,3 +131,66 @@ export interface CardProps {
 }
 
 export type ButtonVariant = "primary" | "secondary";
+
+// --- Versus: rooms friends race in, run by the server over a WebSocket ---
+
+export type RoomStatus = "lobby" | "playing" | "closed";
+
+// How a player's round went. "unsolved" while they're still racing, too.
+export type Outcome = "solved" | "unsolved" | "forfeited";
+
+// Everyone appears by a public ID: the same throughout the room, and never
+// their player token or ID.
+export interface RoomMember {
+    id: string;
+    name: string;
+    ready: boolean;
+    connected: boolean;
+    graceEndsAt?: string; // when a disconnected member forfeits or leaves
+}
+
+// A guess's result without the Pokémon guessed (an opponent's, mid-round)
+export interface Tile {
+    height: Direction;
+    weight: Direction;
+    type: TypeRelation;
+    correct: boolean;
+}
+
+export interface RoundPlayer {
+    id: string;
+    name: string;
+    rank: number;
+    outcome: Outcome;
+    racing: boolean;
+    guesses: number;
+    timeMs?: number;            // how long they took to solve it
+    tiles: Tile[];
+    comparisons?: Comparison[]; // their guesses in full, once it's over
+}
+
+export interface RoomRound {
+    n: number;
+    startsAt: string;   // the end of the countdown (server time)
+    endsAt: string;     // the latest it ends
+    finishedAt?: string;
+    players: RoundPlayer[]; // in their places
+    winner?: string;    // absent for a draw
+    answer?: Pokemon;   // once it's over
+    game?: Game;        // your own race, if you're in it
+}
+
+export interface Room {
+    code: string;
+    status: RoomStatus;
+    gens: number[];     // 1 to 9
+    you: string;
+    host: string;
+    members: RoomMember[];
+    round?: RoomRound;  // the one being played, or the last
+}
+
+export type RoomMessage =
+    | { type: "room", seq: number, serverNow: string, room: Room }
+    | { type: "guess", n: number, result: Comparison, game: Game }
+    | { type: "error", for: string, n?: number, error: string };

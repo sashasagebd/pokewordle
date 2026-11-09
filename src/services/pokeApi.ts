@@ -188,3 +188,29 @@ export async function silhouetteUrl(id: string, n: number): Promise<string> {
     const res = await authed(`/games/${encodeURIComponent(id)}/rounds/${n}/image`);
     return URL.createObjectURL(await res.blob());
 }
+
+// --- Versus -------------------------------------------------------------------
+
+// Makes a room with this player as host; returns its code
+export async function createRoom(selected: number[]): Promise<string> {
+    const { code } = await post<{ code: string }>('/rooms', { gens: apiGens(selected) });
+    return code;
+}
+
+// Joins a room (harmless if already in it). 404 for no such room, 409 if full.
+export async function joinRoom(code: string): Promise<void> {
+    await post(`/rooms/${encodeURIComponent(code)}/join`);
+}
+
+// A single-use ticket for the room's socket: a WebSocket can't send the token
+export async function roomTicket(code: string): Promise<string> {
+    const { ticket } = await post<{ ticket: string }>(`/rooms/${encodeURIComponent(code)}/ticket`);
+    return ticket;
+}
+
+export function roomSocketUrl(ticket: string): string {
+    return `${API_URL.replace(/^http/, 'ws')}/ws?ticket=${encodeURIComponent(ticket)}`;
+}
+
+// Room codes are 6 characters, without ones easily misread (0/O, 1/I/L)
+export const ROOM_CODE = /^[A-HJKMNP-Z2-9]{6}$/;
