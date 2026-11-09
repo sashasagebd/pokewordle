@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { Game, Room, RoomMessage } from './types';
+import type { Game, Pokemon, Room, RoomMessage } from './types';
 import { ApiError, joinRoom, roomSocketUrl, roomTicket } from './services/pokeApi';
 
 // Where the room's socket is:
@@ -15,6 +15,16 @@ const NOT_MEMBER = 4001; // grace ran out, or we left: join again
 
 export type RoomError = { for: string, n?: number, message: string };
 
+// A streak-mode answer's result, to show the player
+export type AnswerResult = { n: number, correct: boolean, answer: Pokemon };
+
+// How far a game has got: Wordle guesses made, or streak rounds answered
+function progress(game: Game): number {
+    if(game.mode === "wordle") return game.guesses?.length ?? 0;
+    if(game.status !== "active") return Infinity;
+    return (game.round?.n ?? 1) - 1;
+}
+
 // The room with code, kept up to date over its socket. Opening it joins the
 // room (harmless if already in). It reconnects whenever the socket drops,
 // with a growing, jittered delay so a restart doesn't bring everyone back at
@@ -28,8 +38,9 @@ export function useRoom(code: string) {
     // room are the server's
     const [ offset, setOffset ] = useState<number>(0);
     const [ error, setError ] = useState<RoomError | null>(null);
-    // Your game as the latest guess left it, until the room catches up
-    const [ guessedGame, setGuessedGame ] = useState<{ n: number, game: Game } | null>(null);
+    // Your game as your latest move left it, until the room catches up
+    const [ movedGame, setMovedGame ] = useState<{ n: number, game: Game } | null>(null);
+    const [ lastAnswer, setLastAnswer ] = useState<AnswerResult | null>(null);
     const socket = useRef<WebSocket | null>(null);
 
     useEffect(() => {
@@ -84,11 +95,16 @@ export function useRoom(code: string) {
                         if(m.seq > seq) {
                             seq = m.seq;
                             setRoom(m.room);
-                            setGuessedGame(null); // it includes your game
+                            setMovedGame(null); // it includes your game
                         }
                         break;
                     case "guess":
-                        setGuessedGame({ n: m.n, game: m.game });
+                        setMovedGame({ n: m.n, game: m.game });
+                        setError(null);
+                        break;
+                    case "answer":
+                        setMovedGame({ n: m.n, game: m.game });
+                        setLastAnswer({ n: m.n, correct: m.correct, answer: m.answer });
                         setError(null);
                         break;
                     case "error":
@@ -124,13 +140,13 @@ export function useRoom(code: string) {
         return true;
     }, []);
 
-    // Your game: the room's, or newer from a guess it hasn't caught up with
+    // Your game: the room's, or newer from a move it hasn't caught up with
     const roomGame = room?.round?.game;
-    const game = guessedGame && (!roomGame || (roomGame.guesses?.length ?? 0) < guessedGame.n)
-        ? guessedGame.game
+    const game = movedGame && (!roomGame || (roomGame.id === movedGame.game.id && progress(roomGame) < movedGame.n))
+        ? movedGame.game
         : roomGame;
 
-    return { room, game, connection, closedReason, offset, error, clearError: () => setError(null), send };
+    return { room, game, lastAnswer, connection, closedReason, offset, error, clearError: () => setError(null), send };
 }
 
 // The server's time now, ticking every interval ms while active

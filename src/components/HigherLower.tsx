@@ -18,7 +18,7 @@ const categories: { key: Category, label: string, unit: string }[] = [
     { key: "weight", label: "Weight", unit: "kg" },
 ]
 
-function PokemonCard({ pokemon, value, hidden, children }: { pokemon: Named | null, value: string, hidden?: boolean, children?: ReactNode }) {
+export function PokemonCard({ pokemon, value, hidden, children }: { pokemon: Named | null, value: string, hidden?: boolean, children?: ReactNode }) {
     return (
         <Card className="flex-1 w-full p-4 sm:p-6 flex flex-col items-center text-center">
             <div className="w-28 h-28 sm:w-52 sm:h-52 rounded-full bg-surface-2 flex items-center justify-center">

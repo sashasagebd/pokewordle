@@ -136,8 +136,10 @@ export type ButtonVariant = "primary" | "secondary";
 
 export type RoomStatus = "lobby" | "playing" | "closed";
 
-// How a player's round went. "unsolved" while they're still racing, too.
-export type Outcome = "solved" | "unsolved" | "forfeited";
+// How a player's round went. Wordle: "solved" or "unsolved" (also while
+// still racing). The streak modes: "out" (a wrong answer ended their run) or
+// "standing" (still going, or was when it ended). Either: "forfeited".
+export type Outcome = "solved" | "unsolved" | "out" | "standing" | "forfeited";
 
 // Everyone appears by a public ID: the same throughout the room, and never
 // their player token or ID.
@@ -163,26 +165,30 @@ export interface RoundPlayer {
     rank: number;
     outcome: Outcome;
     racing: boolean;
-    guesses: number;
-    timeMs?: number;            // how long they took to solve it
-    tiles: Tile[];
-    comparisons?: Comparison[]; // their guesses in full, once it's over
+    guesses: number;            // Wordle
+    score: number;              // streak modes: their streak
+    timeMs?: number;            // how long they took to solve it, or reach their streak
+    tiles: Tile[];              // Wordle
+    comparisons?: Comparison[]; // Wordle: their guesses in full, once it's over
+    endedOn?: Pokemon;          // streak modes: what their run ended on, once it's over
 }
 
 export interface RoomRound {
     n: number;
+    mode: Mode;
     startsAt: string;   // the end of the countdown (server time)
     endsAt: string;     // the latest it ends
     finishedAt?: string;
     players: RoundPlayer[]; // in their places
     winner?: string;    // absent for a draw
-    answer?: Pokemon;   // once it's over
+    answer?: Pokemon;   // Wordle's, once it's over
     game?: Game;        // your own race, if you're in it
 }
 
 export interface Room {
     code: string;
     status: RoomStatus;
+    mode: Mode;         // the next round's
     gens: number[];     // 1 to 9
     you: string;
     host: string;
@@ -193,4 +199,5 @@ export interface Room {
 export type RoomMessage =
     | { type: "room", seq: number, serverNow: string, room: Room }
     | { type: "guess", n: number, result: Comparison, game: Game }
+    | { type: "answer", n: number, correct: boolean, answer: Pokemon, game: Game }
     | { type: "error", for: string, n?: number, error: string };

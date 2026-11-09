@@ -54,7 +54,7 @@ export default function HomePage() {
                     </div>
                     <div className="flex-1">
                         <h2 className="text-xl font-semibold">Versus <span className="ml-1 align-middle rounded-full bg-gold/15 text-gold text-xs font-semibold px-2 py-0.5">New</span></h2>
-                        <p className="text-sm text-muted mt-1">Race up to 3 friends to the same mystery Pokémon, live. Make a room and send them the code.</p>
+                        <p className="text-sm text-muted mt-1">Race up to 3 friends, live, in any of the three modes. Make a room and send them the code.</p>
                     </div>
                     <span className="rounded-xl bg-poke group-hover:bg-poke-dark px-5 py-2 font-display font-semibold transition">Play</span>
                 </Card>

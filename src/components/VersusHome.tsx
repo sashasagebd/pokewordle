@@ -41,13 +41,13 @@ export default function VersusHome() {
     }
 
     return(
-        <GameLayout title="Versus" subtitle="Race your friends to the same Pokémon">
+        <GameLayout title="Versus" subtitle="Race your friends, live">
             <div className="w-full max-w-2xl grid gap-4 sm:grid-cols-2">
                 <Card className="p-5 flex flex-col gap-3">
                     <h2 className="text-xl font-semibold">Make a room</h2>
                     <p className="text-sm text-muted flex-1">
-                        You'll get a code to send your friends: up to 4 of you race at the same PokéWordle.
-                        You can change the generations in the lobby. Now: <span className="text-white">{gens}</span>.
+                        You'll get a code to send your friends: up to 4 of you race at the same game, in any of the three modes.
+                        You pick the mode and generations in the lobby. Generations to start with: <span className="text-white">{gens}</span>.
                     </p>
                     <Button onClick={create} disabled={creating}>{creating ? "Making it…" : "Make a room"}</Button>
                 </Card>
